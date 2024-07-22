@@ -1,0 +1,37 @@
+[package]
+name = "example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+panic-halt = "0.2.0"
+riscv = { version = "0.11.1" }
+riscv-rt-macros = "0.2.0"
+portable-atomic = {version = "1.6.0", features = ["critical-section"] }
+
+embedded-hal = { version = "1.0.0" }
+embedded-hal-nb = "1.0.0"
+embedded-io = "0.6.1"
+
+embassy-executor = { version="0.5.0", features=["arch-riscv32", "executor-thread", "integrated-timers", "task-arena-size-1024"] }
+embassy-time = { version="0.3.0", features=["tick-hz-1_000"] }
+embassy-futures = "0.1.1"
+
+ll_bind_ch32v20x = { version = "0.1.0", path = "../ll_bind_ch32v20x" }
+fugit = "0.3.7"
+w25q32jv = "0.4.0"
+embedded-storage = "0.3.1"
+
+[dependencies.embedded-c-sdk-bind-hal]
+path = "../embedded_c_sdk_bind_hal"
+features = [
+	"tick-size-64bit",
+	"embassy",
+	"print-log",
+	"USART-2",
+	"adc-buffered-ch0",
+]
+
+[profile.release]
+strip = false
+lto = true

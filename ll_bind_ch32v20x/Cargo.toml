@@ -1,0 +1,14 @@
+[package]
+name = "ll_bind_ch32v20x"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+critical-section = { version = "1.1.2", features = ["restore-state-u8"]}
+
+[build-dependencies]
+cc = "1.0"
+bindgen = "0.69.4"
+walkdir = "2.5.0"
+
+

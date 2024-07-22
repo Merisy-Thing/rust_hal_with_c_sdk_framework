@@ -1,0 +1,149 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558 
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build (debug)",
+            "type": "process",
+            "command": "cargo",
+            "options": {
+				"cwd": "${workspaceFolder}/example_ch32v"
+			},
+            "args": [
+                "build",
+                "--example",
+                "${input:Ch32Examples}"
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Build (release)",
+            "type": "process",
+            "command": "cargo",
+            "options": {
+				"cwd": "${workspaceFolder}/${input:Example}"
+			},
+            "args": ["build", "--release"],
+            "problemMatcher": [
+                "$rustc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Clean",
+            "type": "process",
+            "command": "cargo",
+            "options": {
+				"cwd": "${workspaceFolder}/${input:Example}"
+			},
+            "args": ["clean"],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Size(release)",
+            "type": "process",
+            "command": "cargo",
+            "options": {
+				"cwd": "${workspaceFolder}/${input:Example}"
+			},
+            "args": ["size", "--release"],
+            "problemMatcher": [],
+            "dependsOn": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Gen hex(release)",
+            "type": "process",
+            "command": "cargo",
+            "options": {
+				"cwd": "${workspaceFolder}/${input:Example}"
+			},
+            "args": ["objcopy", "--release", "--", "-O", "ihex", "target/example.hex"],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Gen bin(release)",
+            "type": "process",
+            "command": "cargo",
+            "options": {
+				"cwd": "${workspaceFolder}/${input:Example}"
+			},
+            "args": ["objcopy", "--release", "--", "-O", "binary", "target/example.bin"],
+            "problemMatcher": [],
+            "group": "build"
+        },
+		{
+			"label": "Flash (pyOCD)",
+			"type": "shell",
+			"command": "pyocd",
+			"options": {
+				"cwd": "${workspaceFolder}/${input:Example}"
+			},
+			"args": [
+				"flash",
+				"--erase", "sector",
+				"--target", "HK32F0301MF4P7C",
+				"--pack=..\\..\\HK32F0301MxxC.pack",
+				"--format", "elf",
+				"target\\thumbv6m-none-eabi\\debug\\example"
+			],
+            "dependsOn": [],
+			"problemMatcher": []
+		},
+		{
+			"label": "Flash(Wlink)",
+			"type": "shell",
+			"command": "wlink",
+            "options": {
+				"cwd": "${workspaceFolder}/example_ch32v"
+			},
+			"args": [
+				"flash", "target\\riscv32imac-unknown-none-elf\\debug\\examples\\${input:Ch32Examples}",
+			],
+            "dependsOn": [],
+		}
+    ],
+	"inputs": [
+		{
+			"id": "Example",
+			"type": "pickString",
+			"description": "What example do you want to process?",
+			"options": [
+				"example_ch32v",
+				"example_hk32_embassy",
+				"example_hk32_bare_metal",
+			],
+			"default": "example_hk32_embassy"
+		},
+		{
+			"id": "Ch32Examples",
+			"type": "pickString",
+			"description": "What example do you want to process?",
+			"options": [
+                "spi_flash",
+                "pwm",
+				"gpio",
+				"adc",
+				"adc-buffered",
+				"usart",
+				"bare_metal",
+			],
+			"default": "example_hk32_embassy"
+		}
+	]
+}

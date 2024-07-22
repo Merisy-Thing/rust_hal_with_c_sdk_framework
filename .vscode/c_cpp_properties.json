@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Embedded",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/example_hk32\\hk32F0301mxxc\\csrc",
+                "${workspaceFolder}/example_hk32\\hk32F0301mxxc\\csrc\\c_sdk",
+                "${workspaceFolder}/example_hk32\\hk32F0301mxxc\\csrc\\c_sdk\\CMSIS\\CM0\\Core",
+                "${workspaceFolder}/example_hk32\\hk32F0301mxxc\\csrc\\c_sdk\\CMSIS\\HK32F0301MxxC\\Include",
+                "${workspaceFolder}/example_hk32\\hk32F0301mxxc\\csrc\\c_sdk\\HK32F0301MxxC_Lib\\inc",
+            ],
+            "defines": [
+                "USE_FULL_ASSERT"
+            ],
+            "compilerPath": "C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2021.10/bin/arm-none-eabi-gcc.exe",
+            "cStandard": "c11",
+            "intelliSenseMode": "windows-gcc-arm"
+        }
+    ],
+    "version": 4
+}

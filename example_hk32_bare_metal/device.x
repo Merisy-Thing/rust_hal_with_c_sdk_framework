@@ -1,0 +1,23 @@
+PROVIDE(WWDG = DefaultHandler);
+PROVIDE(EXTI11 = DefaultHandler);
+PROVIDE(FLASH = DefaultHandler);
+PROVIDE(RCC = DefaultHandler);
+PROVIDE(EXTI0 = DefaultHandler);
+PROVIDE(EXTI1 = DefaultHandler);
+PROVIDE(EXTI2 = DefaultHandler);
+PROVIDE(EXTI3 = DefaultHandler);
+PROVIDE(EXTI4 = DefaultHandler);
+PROVIDE(EXTI5 = DefaultHandler);
+PROVIDE(TIM1_BRK = DefaultHandler);
+PROVIDE(ADC1 = DefaultHandler);
+PROVIDE(TIM1_UP_TRG_COM = DefaultHandler);
+PROVIDE(TIM1_CC = DefaultHandler);
+PROVIDE(TIM2 = DefaultHandler);
+PROVIDE(TIM6 = DefaultHandler);
+PROVIDE(EXTI6 = DefaultHandler);
+PROVIDE(EXTI7 = DefaultHandler);
+PROVIDE(I2C = DefaultHandler);
+PROVIDE(SPI = DefaultHandler);
+PROVIDE(UART1 = DefaultHandler);
+PROVIDE(UART2 = DefaultHandler);
+

@@ -1,0 +1,14 @@
+[build]
+target = "riscv32imac-unknown-none-elf"
+
+[target.riscv32imac-unknown-none-elf]
+linker = "riscv-none-embed-gcc"
+rustflags = [
+  # "-C", "link-arg=-Tdevice.x",
+  # "-C", "link-arg=-Tmemory.x",
+  "-C", "link-arg=-TLink.ld",
+  "-C", "link-arg=-Wl,-Map=target/che32v203xx.map",
+  "-C", "link-arg=-nostartfiles",
+  "-C", "link-arg=-lgcc",
+  "-C", "opt-level=2" # 0 1 2 3 "s" "z"
+]

@@ -1,0 +1,17 @@
+[package]
+name = "ll_bind_hk32F0301mxxc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bare-metal = "1.0.0"
+cortex-m-rt = { version = "0.7", features = ["device", "set-sp", "set-vtor"]}
+cortex-m = "0.7.7"
+
+
+[build-dependencies]
+cc = "1.0"
+bindgen = "0.69.4"
+walkdir = "2.5.0"
+
+
