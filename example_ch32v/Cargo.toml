@@ -21,6 +21,8 @@ ll_bind_ch32v20x = { version = "0.1.0", path = "../ll_bind_ch32v20x" }
 fugit = "0.3.7"
 w25q32jv = "0.4.0"
 embedded-storage = "0.3.1"
+st7735-lcd = "0.10.0"
+embedded-graphics = "0.8.1"
 
 [dependencies.embedded-c-sdk-bind-hal]
 path = "../embedded_c_sdk_bind_hal"
