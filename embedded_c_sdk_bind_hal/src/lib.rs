@@ -23,3 +23,29 @@ macro_rules! ll_invoke {
         }
     };
 }
+
+
+#[macro_export]
+macro_rules! setInterval {
+    ($f:expr, $period_ms:expr) => {
+        {
+            static mut TICK: Tick = Tick::with_value(0);
+
+            if unsafe { TICK.elapsed_time().to_millis() } >= $period_ms {
+                unsafe { TICK = Tick::now(); }
+                $f();
+            }
+        }
+    };
+
+    ($f:expr, $period_ms:expr, $( $param:expr ),*) => {
+        {
+            static mut TICK: Tick = Tick::with_value(0);
+
+            if unsafe { TICK.elapsed_time().to_millis() } >= $period_ms {
+                unsafe { TICK = Tick::now(); }
+                $f($( $param, )*);
+            }
+        }
+    };
+}
