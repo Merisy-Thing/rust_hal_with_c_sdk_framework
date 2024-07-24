@@ -17,7 +17,7 @@ use embedded_hal::{self, digital::*};
 use ll_bind_ch32v20x as _;
 use panic_halt as _;
 use embedded_graphics::{
-    mono_font::{ascii::FONT_6X10, MonoTextStyle}, pixelcolor::{raw::LittleEndian, Bgr565}, prelude::*, primitives::{Circle, PrimitiveStyle, Rectangle}, text::{Alignment, Text}
+    mono_font::{ascii::FONT_6X10, MonoTextStyle}, pixelcolor::{raw::LittleEndian, Rgb565}, prelude::*, primitives::{Circle, PrimitiveStyle, Rectangle}, text::{Alignment, Text}
 };
 use st7735_lcd::Orientation;
 const IMAGE_WIDTH: u16 = 86;
@@ -45,17 +45,17 @@ fn main() -> ! {
     disp.set_orientation(&Orientation::PortraitSwapped).unwrap();
     let ypos = 67;
 
-    let image: embedded_graphics::image::ImageRaw<Bgr565, LittleEndian> =
+    let image: embedded_graphics::image::ImageRaw<Rgb565, LittleEndian> =
         embedded_graphics::image::ImageRaw::new(
             include_bytes!("./ferris.raw"),
             IMAGE_WIDTH as u32,
         );
 
     disp.set_offset(2, ypos);
-    disp.clear(Bgr565::WHITE).unwrap();
+    disp.clear(Rgb565::WHITE).unwrap();
 
     image.draw(&mut disp).unwrap();
-    let character_style = MonoTextStyle::new(&FONT_6X10, Bgr565::GREEN);
+    let character_style = MonoTextStyle::new(&FONT_6X10, Rgb565::GREEN);
     
     let yoffset = 10;
     let text = "embedded-graphics";
@@ -66,13 +66,13 @@ fn main() -> ! {
         Alignment::Center,
     ).draw(&mut disp).unwrap();
 
-    let fill = PrimitiveStyle::with_fill(Bgr565::RED);
+    let fill = PrimitiveStyle::with_fill(Rgb565::RED);
     // Draw a filled square
     Rectangle::new(Point::new(16, 8), Size::new(16, 16))
         .into_styled(fill)
         .draw(&mut disp).unwrap();
 
-    let thick_stroke = PrimitiveStyle::with_stroke(Bgr565::YELLOW, 2);
+    let thick_stroke = PrimitiveStyle::with_stroke(Rgb565::YELLOW, 2);
     // Draw a circle with a 3px wide stroke.
     Circle::new(Point::new(72, yoffset), 17)
         .into_styled(thick_stroke)
