@@ -34,7 +34,7 @@ pub fn exti_irq_callback(_line: u8) {
 #[embassy_executor::main]
 async fn main(spawner: Spawner) -> ! {
     mcu::ll_drv_init();
-    let mut delay = Delay::<1000>::new();
+    let mut delay = Delay::new();
 
     let _tick = Tick::now();
     let _ = spawner.spawn(task_1());

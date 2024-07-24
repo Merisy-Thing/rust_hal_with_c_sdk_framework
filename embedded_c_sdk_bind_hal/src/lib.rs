@@ -3,6 +3,7 @@
 #[macro_use]
 mod common;
 mod ll_api;
+mod tick_freq_hz;
 
 pub mod adc;
 pub mod gpio;

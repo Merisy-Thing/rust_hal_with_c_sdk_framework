@@ -23,7 +23,7 @@ use embassy_time::Timer;
 
 #[embassy_executor::main(entry = "riscv_rt_macros::entry")]
 async fn main(spawner: Spawner) -> ! {
-    let mut delay = Delay::<1000>::new();
+    let mut delay = Delay::new();
     let _tick: Tick = Tick::now();
 
     ll_invoke!(csdk_hal::INVOKE_ID_LOG_PUTS, b"123".as_ptr(), 3);

@@ -252,7 +252,7 @@ impl embedded_hal::spi::SpiDevice for SpiDevice {
                     }
                 }
                 Operation::DelayNs(ns) => {
-                    let mut delay = Delay::<1000>::new();
+                    let mut delay = Delay::new();
                     delay.delay_ns(*ns);
                 }
             }

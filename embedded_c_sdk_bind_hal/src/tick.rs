@@ -1,7 +1,9 @@
 use crate::ll_api::ll_cmd::*;
 use embedded_hal::delay::DelayNs;
-use fugit::TimerDurationU32;
+use fugit::{Duration, TimerDurationU32};
 use portable_atomic::{AtomicU32, Ordering};
+
+pub const TICK_FREQ_HZ: u32 = crate::tick_freq_hz::TICK_FREQ_HZ;
 
 #[cfg(not(feature = "tick-size-64bit"))]
 pub type TickType = u32;
@@ -80,11 +82,41 @@ impl Tick {
     /// let elapsed_ticks = start_tick.elapsed();
     /// ```
     pub fn elapsed(self) -> TickType {
-        if let Some(e) = Self::now().0.checked_sub(self.0) {
-            e
+        if let Some(tick) = Self::now().0.checked_sub(self.0) {
+            tick
         } else {
             TickType::MAX
         }
+    }
+
+    pub const fn with_value(value: TickType) -> Self {
+        Tick(value)
+    }
+
+    pub fn elapsed_time(self) -> Duration<TickType, 1, TICK_FREQ_HZ> {
+        let tick = if let Some(res) = Self::now().0.checked_sub(self.0) {
+            res
+        } else {
+            TickType::MAX
+        };
+
+        Duration::<TickType, 1, TICK_FREQ_HZ>::from_ticks(tick)
+    }
+}
+
+impl core::ops::Add for Tick {
+    type Output = Self;
+    
+    fn add(self, rhs: Self) -> Self::Output {
+        Tick(self.0 + rhs.0)
+    }
+}
+
+impl core::ops::Sub for Tick {
+    type Output = Self;
+    
+    fn sub(self, rhs: Self) -> Self::Output {
+        Tick(self.0 - rhs.0)
     }
 }
 
@@ -95,17 +127,17 @@ impl Tick {
 ///
 /// # Examples
 /// ```
-/// let mut delay = Delay::<1000>::new(); // Create a delay object for a 1000 Hz tick frequency.
+/// let mut delay = Delay::new(); // Create a delay object for a 1000 Hz tick frequency.
 /// delay.delay_ms(500); // Delay for 500 milliseconds.
 /// ```
-pub struct Delay<const TICK_FREQ_HZ: u32>;
+pub struct Delay;
 
-impl<const TICK_FREQ_HZ: u32> Delay<TICK_FREQ_HZ> {
+impl Delay {
     /// Creates a new `Delay` instance for the specified tick frequency.
     ///
     /// # Examples
     /// ```
-    /// let mut delay = Delay::<1000>::new(); // Create a delay object for a 1000 Hz tick frequency.
+    /// let mut delay = Delay::new(); // Create a delay object for a 1000 Hz tick frequency.
     /// ```
     pub fn new() -> Self {
         Delay
@@ -113,12 +145,12 @@ impl<const TICK_FREQ_HZ: u32> Delay<TICK_FREQ_HZ> {
 }
 
 /// Trait implementation for delaying in nanoseconds.
-impl<const TICK_FREQ_HZ: u32> DelayNs for Delay<TICK_FREQ_HZ> {
+impl DelayNs for Delay {
     /// Delays for a specified number of nanoseconds.
     ///
     /// # Examples
     /// ```
-    /// let mut delay = Delay::<1000>::new();
+    /// let mut delay = Delay::new();
     /// delay.delay_ns(1_000_000); // Delay for 1 millisecond (1,000,000 nanoseconds).
     /// ```
     #[inline]
@@ -130,7 +162,7 @@ impl<const TICK_FREQ_HZ: u32> DelayNs for Delay<TICK_FREQ_HZ> {
     ///
     /// # Examples
     /// ```
-    /// let mut delay = Delay::<1000>::new();
+    /// let mut delay = Delay::new();
     /// delay.delay_ms(500); // Delay for 500 milliseconds.
     /// ```
     #[inline]

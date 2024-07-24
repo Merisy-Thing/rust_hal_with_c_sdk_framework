@@ -20,7 +20,7 @@ use embassy_time::Timer;
 
 #[embassy_executor::main(entry = "riscv_rt_macros::entry")]
 async fn main(_spawner: Spawner) -> ! {
-    let mut delay = Delay::<1000>::new();
+    let mut delay = Delay::new();
     let _tick: Tick = Tick::now();
 
     let mut led = Pin::new(PortNum::PB, PinNum::Pin3).into_output(PinModeOutput::OutPP);

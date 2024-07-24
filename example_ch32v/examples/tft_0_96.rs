@@ -25,7 +25,7 @@ const IMAGE_WIDTH: u16 = 86;
 
 #[riscv_rt_macros::entry]
 fn main() -> ! {
-    let mut delay = Delay::<1000>::new();
+    let mut delay = Delay::new();
 
 	let _sck = Pin::new(PortNum::PA, PinNum::Pin5).into_alternate(PinModeAlternate::AFPP);
     let _mosi = Pin::new(PortNum::PA, PinNum::Pin7).into_alternate(PinModeAlternate::AFPP);
