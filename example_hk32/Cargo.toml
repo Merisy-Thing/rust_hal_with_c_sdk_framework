@@ -24,7 +24,6 @@ path = "../embedded_c_sdk_bind_hal"
 features = [
 	"embassy",
 	"print-log",
-	"adc-buffered-ch0",
 ]
 
 [profile.release]

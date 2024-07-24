@@ -164,6 +164,7 @@ impl<'a> Drop for AdcBuffered<'a> {
     }
 }
 
+#[cfg(feature = "_adc-buffered")]
 macro_rules! impl_adc_ch_data {
     ($adc_ch:expr) => {
         paste! {
