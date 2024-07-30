@@ -1,11 +1,9 @@
 # Rust HAL with C SDK Framework
 
 ## 介绍
----
 这是一个Rust HAL与 MCU C SDK/BSP 绑定的框架。
 
 ## 说明
----
 ### 启动和运行时
  - 直接使用cortexm-rt或riscv-rt，参考 **_ll_bind_hk32F0301mxxc_** 的实现
  - 使用SDK/BSP的startup_XXX.S，参考 **_ll_bind_ch32v20x_** 的实现
@@ -29,6 +27,5 @@
  - **adc-buffered-ch[0..7]** = [] ： ADC缓存和回调定义
  - **exti-irq-callback** = [] ： exti中断回调，需要由APP定义
 
-### 架构
----
+## 架构
 ![输入图片说明](doc/framework.png)
