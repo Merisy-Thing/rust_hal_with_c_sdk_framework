@@ -1,6 +1,6 @@
 [package]
 name = "embedded-c-sdk-bind-hal"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 authors = ["Merisy-Thing <merisy-thing@outlook.com>"]
 description = "Embedded C SDK bind HAL"
