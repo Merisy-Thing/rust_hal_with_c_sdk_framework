@@ -1,7 +1,7 @@
 use crate::common::atomic_ring_buffer::RingBuffer;
 use crate::ll_api::ll_cmd::*;
-#[cfg(feature = "_usart_impl")]
-use paste::paste;
+#[cfg(feature = "embassy")]
+use embassy_sync::waitqueue::AtomicWaker;
 
 pub use crate::ll_api::{
     UsartDataBits, UsartHwFlowCtrl, UsartId, UsartMode, UsartParity, UsartStopBits,
@@ -59,6 +59,8 @@ pub enum Error {
 pub struct UsartInner {
     id: UsartId,
     rx_buf: RingBuffer<u8>,
+    #[cfg(feature = "embassy")]
+    rx_waker: AtomicWaker,
 }
 
 #[derive(Clone)]
@@ -147,6 +149,46 @@ impl<'a> Usart<'a> {
             Err(nb::Error::WouldBlock)
         }
     }
+    
+    /// An asynchronous read function for reading data into a provided buffer.
+    /// 
+    /// # Arguments
+    /// * `buffer` - A mutable slice where the read bytes will be stored.
+    ///
+    /// # Returns
+    /// * Returns the number of bytes read as an `i32`, or `-1` if the buffer is empty,
+    ///   or `-2` if there was an error during the read operation.
+    #[cfg(feature = "embassy")]
+    async fn async_read(&self, buffer: &mut [u8]) -> i32 {
+        if buffer.is_empty() {
+            return -1;
+        }
+
+        let buffer_len = buffer.len();
+        let mut buffer_idx = 0;
+
+        let abort = core::future::poll_fn(move |cx| {
+            self.inner.rx_waker.register(cx.waker());
+            
+            let mut reader = unsafe { self.inner.rx_buf.reader() };
+            while let Some(byte) = reader.pop_one() {
+                buffer[buffer_idx] = byte;
+                buffer_idx += 1;
+                if buffer_idx >= buffer_len {
+                    return core::task::Poll::Ready(Ok::<(), Error>(()));
+                }
+            }
+            
+            return core::task::Poll::Pending;
+        });
+
+        let result = match abort.await {
+            Ok(_) => buffer_len as i32,
+            Err(_) => -2,
+        };
+
+        result
+    }
 }
 
 impl Drop for Usart<'_> {
@@ -186,6 +228,28 @@ impl embedded_io::Write for Usart<'_> {
     }
 }
 
+#[cfg(feature = "embassy")]
+impl embedded_io_async::Write for Usart<'_> {
+    async fn write(&mut self, buf: &[u8]) -> Result<usize, Self::Error> {
+        let result = self.blocking_write(buf);
+        if result == 0 {
+            return Ok(buf.len());
+        }
+        return Err(Error::Code(result));
+    }
+}
+
+#[cfg(feature = "embassy")]
+impl embedded_io_async::Read for Usart<'_> {
+    async fn read(&mut self, buf: &mut [u8]) -> Result<usize, Self::Error> {
+        let result = self.async_read(buf).await;
+        if result > 0 {
+            return Ok(result as usize);
+        }
+        return Err(Error::Code(result));
+    }
+}
+
 impl embedded_hal_nb::serial::Error for Error {
     fn kind(&self) -> embedded_hal_nb::serial::ErrorKind {
         embedded_hal_nb::serial::ErrorKind::Other
@@ -205,7 +269,7 @@ impl<'d> embedded_hal_nb::serial::Write for Usart<'_> {
     fn write(&mut self, char: u8) -> nb::Result<(), Self::Error> {
         let result = self.blocking_write(&[char]);
         if result == 0 {
-            return Ok({});
+            return Ok(());
         }
         return Err(nb::Error::Other(Error::Code(result)));
     }
@@ -221,14 +285,18 @@ macro_rules! impl_usart {
         pub static $USART_id: UsartInner = UsartInner {
             id: UsartId::$USART_id,
             rx_buf: RingBuffer::new(),
+            #[cfg(feature = "embassy")]
+            rx_waker: AtomicWaker::new(),
         };
 
-        paste! {
+        paste::paste! {
             #[allow(non_snake_case)]
             #[no_mangle]
             #[inline]
             unsafe extern "C" fn [<$USART_id _rx_hook_rs>] (val: u8) {
                 $USART_id.rx_buf.writer().push_one(val);
+                #[cfg(feature = "embassy")]
+                $USART_id.rx_waker.wake();
             }
         }
     };

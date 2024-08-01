@@ -13,8 +13,9 @@ use embedded_c_sdk_bind_hal::{
 };
 use embedded_c_sdk_bind_hal as csdk_hal;
 use embedded_hal::{self, delay::DelayNs};
-use embedded_hal_nb::serial::Read;
+//use embedded_hal_nb::serial::Read;
 use embedded_io::{self, Write};
+use embedded_io_async::{self, Read};
 use ll_bind_ch32v20x as _;
 use panic_halt as _;
 
@@ -44,22 +45,35 @@ async fn main(spawner: Spawner) -> ! {
 
     loop {
         Timer::after_ticks(100 as u64).await;
-        delay.delay_ms(100);
-        usart2.write(b"hello test\r\n").ok();
+        delay.delay_ms(900);
+        println!("usart2 wr!");
+        usart2.write(b"123456789abc\r\n").ok();
+        
     }
 }
 
 #[embassy_executor::task]
 async fn task_1(mut usart: Usart<'static>) {
     let mut count = 0;
+    let mut buffer = [0_u8; 4];
     loop {
         println!("count = {}", count);
         count += 1;
-        while let Ok(byte) = usart.read() {
-            print!("_{}", byte as char);
+        buffer.fill(0);
+        match usart.read(&mut buffer).await {
+            Ok(_) => {
+                println!("read: {:?}", buffer);
+            },
+            Err(e) => {
+                println!("err: {:?}", e);
+            },
         }
+        
+        // while let Ok(byte) = usart.read() {
+        //     print!("_{}", byte as char);
+        // }
 
-        Timer::after_ticks(1000 as u64).await;
+        //Timer::after_ticks(1000 as u64).await;
     }
 }
 

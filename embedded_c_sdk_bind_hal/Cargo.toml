@@ -14,7 +14,9 @@ repository = "https://github.com/Merisy-Thing/rust_hal_with_c_sdk_framework"
 critical-section = { version = "1.1.2" }
 embedded-hal = "1.0.0"
 embedded-hal-nb = "1.0.0"
+embedded-hal-async = "1.0.0"
 embedded-io = "0.6.1"
+embedded-io-async = "0.6.1"
 
 embassy-time-driver = "0.1.0"
 heapless = { version = "0.8.0" }
@@ -24,7 +26,6 @@ fugit = "0.3.7"
 fugit-timer = "0.1.3"
 paste = "1.0.15"
 embassy-sync = "0.6.0"
-embedded-hal-async = "1.0.0"
 
 [dependencies.portable-atomic]
 version = "1.6.0"
