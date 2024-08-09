@@ -1,9 +1,11 @@
 # Rust HAL with C SDK Framework
 
 ## Introduction
+---
 This is a Rust HAL  framework to be bound to the MCU C SDK/BSP.
 
 ## Description
+---
 ### Startup and runtime
  - Use cortexm-rt or riscv-rt directly, referring to the implementation of **_ll_bind_hk32F0301mxxc_**
  - Use the SDK/BSP startup_XXX.S, refer to the implementation of **_ll_bind_ch32v20x_**
@@ -27,5 +29,6 @@ This is a Rust HAL  framework to be bound to the MCU C SDK/BSP.
  - **adc-buffered-ch[0..7]** = []: ADC cache and callback definitions
  - **exti-irq-callback** = [] : exti interrupt callback, which needs to be defined by the App
 
-## Architecture
+### Architecture
+---
 ![输入图片说明](doc/framework.png)

@@ -12,7 +12,10 @@
             "label": "Build (debug)",
             "type": "process",
             "command": "cargo",
-            "args": ["build"],
+            "args": [
+                "build",
+                "--example", "tft_0_96_ring"
+            ],
             "problemMatcher": [
                 "$rustc"
             ],
@@ -25,7 +28,7 @@
             "label": "Build (release)",
             "type": "process",
             "command": "cargo",
-            "args": ["build", "--release"],
+            "args": ["build", "--release", "--example", "tft_0_96_ring"],
             "problemMatcher": [
                 "$rustc"
             ],

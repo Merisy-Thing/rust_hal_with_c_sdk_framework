@@ -39,12 +39,12 @@ impl Adc {
     /// # Returns
     /// The result of the conversion as an `AdcDataType`.
     pub fn single_convert(&self) -> AdcDataType {
-        let buf = [0; 1];
+        let mut buf = [0; 1];
         let result = ll_invoke_inner!(
             INVOKE_ID_ADC_CTRL,
             self.ch,
             AdcCtrl::Convert,
-            buf.as_ptr(),
+            buf.as_mut_ptr(),
             1
         );
         if result < 0 {
