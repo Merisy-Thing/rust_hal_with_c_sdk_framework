@@ -7,7 +7,7 @@ fn main() {
     let mut cc_build = cc::Build::new();
     let mut c_files = Vec::new();
     let mut h_files = Vec::new();
-    let mut h_floders = Vec::new();
+    let mut h_folders = Vec::new();
 
     for entry in walkdir::WalkDir::new("./csrc") {
         if let Ok(entry) = entry {
@@ -18,24 +18,26 @@ fn main() {
                 if ext == "h" {
                     h_files.push(entry.path().to_str().unwrap().to_string());
                     let h_path = entry.path();
-                    let h_floder = h_path.parent().unwrap().to_str().unwrap().to_string();
-                    if !h_floders.contains(&h_floder.to_string()) {
-                        h_floders.push(h_floder.to_string());
+                    let h_folder = h_path.parent().unwrap().to_str().unwrap().to_string();
+                    if !h_folders.contains(&h_folder.to_string()) {
+                        h_folders.push(h_folder.to_string());
                     }
                 }
             }
         }
     }
-    cc_build.includes(h_floders);
+    cc_build.includes(h_folders);
     cc_build.files(&c_files);
     
+    cc_build.compiler("riscv-none-embed-gcc");
+	
     cc_build.file("csrc\\c_sdk_lib\\SRC\\Startup\\startup_ch32v20x_D6.S");
 
     cc_build.opt_level(2);
     cc_build.flag("-march=rv32imacxw").flag("-mabi=ilp32").flag("-msmall-data-limit=8").flag("-msave-restore");
     //cc_build.asm_flag("-x assembler-with-cpp");
 
-    cc_build.compile("riscv-none-embed-gcc");
+    cc_build.compile("ll_bind_ch32v20x");
 
     //bindgen ll_drv
     let bindings = bindgen::Builder::default()

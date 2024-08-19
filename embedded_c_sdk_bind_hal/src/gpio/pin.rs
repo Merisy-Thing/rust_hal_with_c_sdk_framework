@@ -83,7 +83,7 @@ impl Pin<()> {
     ///
     /// # Returns
     /// A new `Pin` instance with uninitialized mode.
-    pub fn new(port: PortNum, pin: PinNum) -> Pin<()> {
+    pub const fn new(port: PortNum, pin: PinNum) -> Pin<()> {
         Pin {
             port,
             pin,

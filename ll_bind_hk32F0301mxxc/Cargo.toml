@@ -14,4 +14,7 @@ cc = "1.0"
 bindgen = "0.69.4"
 walkdir = "2.5.0"
 
+[features]
+gcc = []
+clang = []
 
