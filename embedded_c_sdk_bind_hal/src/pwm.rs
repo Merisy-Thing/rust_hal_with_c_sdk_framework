@@ -92,10 +92,10 @@ impl<const FREQ: u32> Pwm<FREQ> {
     /// The current period as a `TimerDurationU32`.
     pub fn get_period(&self) -> TimerDurationU32<FREQ> {
         let mut result = ll_invoke_inner!(INVOKE_ID_PWM_CTRL, self.ch, PwmCtrl::GetPeriod);
-        if result < 1 {
-            result = 1;
+        if result < 0 {
+            result = 0;
         }
-        TimerDurationU32::from_ticks(FREQ / result as u32)
+        TimerDurationU32::from_ticks(result as u32)
     }
 
     /// Sets the PWM frequency for the PWM output from a duration.
@@ -104,8 +104,7 @@ impl<const FREQ: u32> Pwm<FREQ> {
     /// * `period` - The desired period as a `TimerDurationU32`.
     pub fn set_period(&self, period: TimerDurationU32<FREQ>) {
         if !period.is_zero() {
-            let hz = FREQ / period.ticks();
-            ll_invoke_inner!(INVOKE_ID_PWM_CTRL, self.ch, PwmCtrl::SetPeriod, hz);
+            ll_invoke_inner!(INVOKE_ID_PWM_CTRL, self.ch, PwmCtrl::SetPeriod, period.ticks());
         }
     }
 }

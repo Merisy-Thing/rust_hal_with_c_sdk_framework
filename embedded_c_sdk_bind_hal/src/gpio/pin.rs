@@ -186,6 +186,16 @@ impl Pin<Input> {
     }
 }
 
+impl Pin<Alternate> {
+    /// Reads the current state of the pin.
+    ///
+    /// # Returns
+    /// `true` if the pin reads high, `false` otherwise.
+    pub(crate) fn is_high(&mut self) -> bool {
+        ll_invoke_inner!(INVOKE_ID_GPIO_GET_INPUT, self.port, self.pin) > 0
+    }
+}
+
 impl<MODE> embedded_hal::digital::ErrorType for Pin<MODE> {
     type Error = core::convert::Infallible;
 }
@@ -217,6 +227,18 @@ impl embedded_hal::digital::StatefulOutputPin for Pin<Output> {
 }
 
 impl embedded_hal::digital::InputPin for Pin<Input> {
+    #[inline(always)]
+    fn is_high(&mut self) -> Result<bool, Self::Error> {
+        Ok(Self::is_high(self))
+    }
+
+    #[inline(always)]
+    fn is_low(&mut self) -> Result<bool, Self::Error> {
+        Ok(!Self::is_high(self))
+    }
+}
+
+impl embedded_hal::digital::InputPin for Pin<Alternate> {
     #[inline(always)]
     fn is_high(&mut self) -> Result<bool, Self::Error> {
         Ok(Self::is_high(self))

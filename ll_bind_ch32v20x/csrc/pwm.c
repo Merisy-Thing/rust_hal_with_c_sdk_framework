@@ -83,27 +83,21 @@ int pwm_ctrl(uint32_t ch, uint32_t ctrl, uint32_t param)
 		}
 	}
 	break;
-	case PWM_CTRL_SET_PERIOD://param: unit:HZ
+	case PWM_CTRL_SET_PERIOD://param: unit:tick
 	{
-		uint32_t freq = SystemCoreClock / (TIM1->PSC + 1);
-		
-		TIM1->ATRLR = freq / param;
+		TIM1->ATRLR = param - 1;
 	}
 	break;
 	case PWM_CTRL_GET_PERIOD:
 	{
-		uint32_t freq = SystemCoreClock / (TIM1->PSC + 1);
-		uint32_t arr = TIM1->ATRLR;
-		if(arr == 0) {
-			return 0;
-		}
+		uint32_t arr = TIM1->ATRLR + 1;
 
-		return freq/arr;
+		return arr;
 	}
 	break;
 	case PWM_CTRL_GET_MAXDUTY:
 	{
-		return TIM1->ATRLR;
+		return TIM1->ATRLR + 1;
 	}
 	break;
 	case PWM_CTRL_ACTIVE_HIGH:
