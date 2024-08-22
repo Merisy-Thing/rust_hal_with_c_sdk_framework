@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4 - 2024-08-22
+
+- add print-log-ufmt featue to optimize fmt code size
+
 ## 0.3.3 - 2024-08-20
 
 - impl embedded_hal::digital::InputPin for Pin<Alternate>
