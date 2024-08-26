@@ -62,10 +62,10 @@ async fn task_1(mut usart: Usart<'static>) {
         buffer.fill(0);
         match usart.read(&mut buffer).await {
             Ok(_) => {
-                println!("read: {:?}", buffer);
+                println!("read: {:?}", &buffer);
             },
-            Err(e) => {
-                println!("err: {:?}", e);
+            Err(_e) => {
+                println!(" usart.read err");
             },
         }
         

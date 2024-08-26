@@ -13,6 +13,7 @@
 #include "pwm.h"
 #include "usart.h"
 #include "adc.h"
+#include "print.h"
 
 extern void sys_tick_inc(void);
 
@@ -85,7 +86,20 @@ void delay_ns(uint32_t ns)
         }
     }
 }
+void ll_putc(char c)
+{
+	USART_TypeDef *USARTx;
+#if(DEBUG == DEBUG_UART1)
+	USARTx = USART1;
+#elif(DEBUG == DEBUG_UART2)
+	USARTx = USART2;
+#elif(DEBUG == DEBUG_UART3)
+	USARTx = USART3;
+#endif
 
+	USART_SendData(USARTx, (uint8_t)c);
+	while(USART_GetFlagStatus(USARTx, USART_FLAG_TC) == 0);
+}
 
 int ll_invoke(enum INVOKE invoke_id, ...)
 {
@@ -97,6 +111,9 @@ int ll_invoke(enum INVOKE invoke_id, ...)
 	{
 	case ID_SYSTEM_INIT:
 		//system inited in start asm.
+	break;
+	case ID_SYSTEM_RESET:
+		NVIC_SystemReset();
 	break;
 	case ID_LL_DRV_INIT:
 		hal_hw_init();
@@ -115,18 +132,16 @@ int ll_invoke(enum INVOKE invoke_id, ...)
 	{
 		uint8_t* p_str = va_arg(args, uint8_t*);
 		uint32_t len = va_arg(args, uint32_t);
-		USART_TypeDef *USARTx;
-#if(DEBUG == DEBUG_UART1)
-        USARTx = USART1;
-#elif(DEBUG == DEBUG_UART2)
-        USARTx = USART2;
-#elif(DEBUG == DEBUG_UART3)
-        USARTx = USART3;
-#endif
+
 		while (len--) {
-			USART_SendData(USARTx, *p_str++);
-        	while(USART_GetFlagStatus(USARTx, USART_FLAG_TC) == 0);
+			ll_putc(*p_str++);
 		}
+	}
+	break;
+	case ID_LOG_PRINT:
+	{
+		const char* fmt = va_arg(args, const char*);
+		ll_vprintf(fmt, args);
 	}
 	break;
 	case ID_GPIO_INIT:

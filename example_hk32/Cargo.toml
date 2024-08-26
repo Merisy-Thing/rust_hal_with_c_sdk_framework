@@ -18,13 +18,12 @@ embassy-time = { version="0.3.0", features=["tick-hz-1_000"] }
 embassy-futures = "0.1.1"
 
 ll_bind_hk32F0301mxxc = { version = "0.1.0", path = "../ll_bind_hk32F0301mxxc", features = ["clang"] }
-ufmt = "0.2.0"
 
 [dependencies.embedded-c-sdk-bind-hal]
 path = "../embedded_c_sdk_bind_hal"
 features = [
 	"embassy",
-	"print-log",
+	"print-log-csdk",
 ]
 
 [profile.release]

@@ -29,7 +29,7 @@ async fn main(_spawner: Spawner) -> ! {
     println!("hello embassy!");
     let mut adc_count = 0;
     loop {
-        println!("adc buf: {:?}", adc_ch0_buf);
+        println!("adc buf: {:?}", &adc_ch0_buf);
         Timer::after_ticks(1000 as u64).await;
 
         if adc_count < 10 {

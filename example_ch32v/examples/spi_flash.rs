@@ -41,10 +41,10 @@ async fn main(_spawner: Spawner) -> ! {
     let mut w25 = W25q32jv::new(spi_dev, hold, wp).unwrap();
     match w25.device_id() {
         Ok(id) => {
-            println!("device_id {:?}", id);
+            println!("device_id {:?}", &id);
         }
-        Err(e) => {
-            println!("get device_id err {:?}", e);
+        Err(_e) => {
+            println!("get device_id err");
         }
     }
     let mut read_buf = [0_u8; 32];

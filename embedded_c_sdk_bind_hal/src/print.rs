@@ -1,6 +1,7 @@
 use crate::ll_api::ll_cmd::*;
 
-#[cfg(all(feature = "print-log", not(feature = "print-log-ufmt")))]
+
+#[cfg(all(feature = "print-log", not(feature = "print-log-csdk")))]
 #[macro_export]
 macro_rules! println {
     ($($arg:tt)*) => {{
@@ -11,17 +12,7 @@ macro_rules! println {
     }};
 }
 
-#[cfg(all(feature = "print-log", feature = "print-log-ufmt"))]
-#[macro_export]
-macro_rules! println {
-    ($($arg:tt)*) => {{
-        {
-            ufmt::uwriteln!($crate::print::Printer, $($arg)*).ok();
-        }
-    }};
-}
-
-#[cfg(all(feature = "print-log", not(feature = "print-log-ufmt")))]
+#[cfg(all(feature = "print-log", not(feature = "print-log-csdk")))]
 #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => {{
@@ -31,17 +22,6 @@ macro_rules! print {
         }
     }};
 }
-
-#[cfg(all(feature = "print-log", feature = "print-log-ufmt"))]
-#[macro_export]
-macro_rules! print {
-    ($($arg:tt)*) => {{
-        {
-            ufmt::uwrite!($crate::print::Printer, $($arg)*).ok();
-        }
-    }};
-}
-
 
 #[cfg(not(feature = "print-log"))]
 #[macro_export]
@@ -62,18 +42,6 @@ impl core::fmt::Write for Printer {
         let bytes = s.as_bytes();
         unsafe { ll_invoke(INVOKE_ID_LOG_PUTS, bytes.as_ptr(), bytes.len()) };
 
-        Ok(())
-    }
-}
-
-#[cfg(feature = "print-log-ufmt")]
-impl ufmt::uWrite for Printer {
-    type Error = core::convert::Infallible;
-
-    fn write_str(&mut self, s: &str) -> Result<(), Self::Error> {
-        let bytes = s.as_bytes();
-        unsafe { ll_invoke(INVOKE_ID_LOG_PUTS, bytes.as_ptr(), bytes.len()) };
-        
         Ok(())
     }
 }

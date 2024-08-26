@@ -44,6 +44,15 @@
             "args": ["clean"],
             "problemMatcher": [],
             "group": "build"
-        }
+        },
+		{
+			"label": "Flash(Wlink)",
+			"type": "shell",
+			"command": "wlink",
+			"args": [
+				"flash", "target\\riscv32imac-unknown-none-elf\\release\\examples\\tft_0_96_ring",
+			],
+            "dependsOn": ["Build (release)"],
+		}
     ]
 }

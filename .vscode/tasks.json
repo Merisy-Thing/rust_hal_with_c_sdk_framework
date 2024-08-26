@@ -134,6 +134,7 @@
 			"type": "pickString",
 			"description": "What example do you want to process?",
 			"options": [
+                "print",
                 "tft_0_96",
                 "spi_flash",
                 "pwm",
@@ -143,7 +144,7 @@
 				"usart",
 				"bare_metal",
 			],
-			"default": "example_hk32_embassy"
+			"default": "print"
 		}
 	]
 }

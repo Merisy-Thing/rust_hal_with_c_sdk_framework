@@ -21,13 +21,18 @@
  - Tick:  **fn sys_tick_inc()** ，参考  **_ll_bind_ch32v20x\csrc\ll_api.c_**  和  **_example_hk32\src\interrupt.rs_**  
 
 ### Features
- -  **print-log**  = []： print!,println!串口打印日志
+ -  **print-log** = []： print!,println!串口打印日志
  - **tick-size-64bit** = []： tick计数器使用64位，默认32位
  - **embassy** = [] ： embassy定时器和gpio输入异步支持
  - **USART-[0..7]** = [] ： 串口接收缓存和回调ID定义
  - **adc-data-type-u8** = [] ： 8位ADC数据类型，默认16位
  - **adc-buffered-ch[0..7]** = [] ： ADC缓存和回调定义
  - **exti-irq-callback** = [] ： exti中断回调，需要由APP定义
+ - **print-log-csdk** = ["print-log"]： print!,println!调用csdk的格式化函数输出日志，可节约2~6KB
+
+### print-log-csdk 打印输出限制
+ - 增加%S和%y/Y输出带长度参数的字节串和数组，参考  **_ll_bind_ch32v20x\csrc\print.c_**
+ - 不支持填充
 
 ### 架构
 ---

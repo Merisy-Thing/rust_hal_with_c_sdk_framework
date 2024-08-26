@@ -223,9 +223,11 @@ pub mod ll_cmd {
     //INVOKE
     pub type InvokeParam = ::core::ffi::c_uint;
     pub const INVOKE_ID_SYSTEM_INIT: InvokeParam = 100;
+    pub const INVOKE_ID_SYSTEM_RESET: InvokeParam = 101;
     pub const INVOKE_ID_LL_DRV_INIT: InvokeParam = 200;
     pub const INVOKE_ID_DELAY_NANO: InvokeParam = 201;
     pub const INVOKE_ID_LOG_PUTS: InvokeParam = 202;
+    pub const INVOKE_ID_LOG_PRINT: InvokeParam = 203;
     pub const INVOKE_ID_GPIO_INIT: InvokeParam = 300;
     pub const INVOKE_ID_GPIO_SET: InvokeParam = 301;
     pub const INVOKE_ID_GPIO_GET_INPUT: InvokeParam = 302;

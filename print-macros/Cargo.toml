@@ -1,0 +1,18 @@
+[package]
+name = "embedded-c-sdk-bind-print-macros"
+version = "0.1.0"
+edition = "2021"
+authors = ["Merisy-Thing <merisy-thing@outlook.com>"]
+description = "Embedded C SDK bind print macros"
+keywords = ["embedded", "csdk", "c-sdk", "bind"]
+categories = ["embedded", "no-std"]
+license = "MIT"
+repository = "https://github.com/Merisy-Thing/rust_hal_with_c_sdk_framework"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0"
+quote = "1.0"
+syn = "2.0"

@@ -47,16 +47,16 @@ fn main() -> ! {
         }
 
         tick_callback::<1000, _>(|| {
-            println!("timer_task0 1000 count = {} {:?}", count, Tick::now());
+            println!("timer_task0 1000 count = {} {:?}", count, Tick::now().elapsed());
         });
 
         setInterval!(||{
             count_2000 += 1;
-            println!("setInterval 2000 count_2000 = {} {:?}", count_2000, Tick::now());
+            println!("setInterval 2000 count_2000 = {} {:?}", count_2000, Tick::now().elapsed());
         }, 2000);
         
         setInterval!(||{
-            println!("setInterval 3000 count = {} {:?}", count, Tick::now());
+            println!("setInterval 3000 count = {} {:?}", count, Tick::now().elapsed());
         }, 3000);
         
         setInterval!(call_back_1, 500, 123);
@@ -65,8 +65,8 @@ fn main() -> ! {
 }
 
 fn call_back_1(param0: u32) {
-    println!("call_back1 {param0} {:?}", Tick::now());
+    println!("call_back1 {} {:?}", param0, Tick::now().elapsed());
 }
 fn call_back_2(param0: u32, param1: u32) {
-    println!("call_back2 {param0} {param1} {:?}", Tick::now());
+    println!("call_back2 {} {} {:?}", param0, param1, Tick::now().elapsed());
 }

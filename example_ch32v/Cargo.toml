@@ -24,14 +24,13 @@ w25q32jv = "0.4.0"
 embedded-storage = "0.3.1"
 st7735-lcd = "0.10.0"
 embedded-graphics = { version = "0.8.1", features = ["fixed_point"]}
-ufmt = "0.2.0"
 
 [dependencies.embedded-c-sdk-bind-hal]
 path = "../embedded_c_sdk_bind_hal"
 features = [
 	"tick-size-64bit",
 	"embassy",
-	"print-log",
+	"print-log-csdk",
 	"USART-2",
 	"adc-buffered-ch0",
 ]

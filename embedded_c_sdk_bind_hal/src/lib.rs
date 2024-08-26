@@ -15,6 +15,9 @@ pub mod usart;
 
 pub use ll_api::ll_cmd::*;
 
+#[cfg(feature = "print-log-csdk")]
+pub use embedded_c_sdk_bind_print_macros::{print, println};
+
 #[macro_export]
 macro_rules! ll_invoke {
     ( $( $x:expr ),* ) => {
