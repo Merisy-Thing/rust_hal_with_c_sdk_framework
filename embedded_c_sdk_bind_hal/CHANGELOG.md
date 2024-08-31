@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 - 2024-08-31
+
+- add fastpin to speedup pin operation
+- add softi2c module to simulate i2c bus
+- SpiDevice nss change to <NSS: OutputPin> generic
+- add pub fn tick() -> TickType for Tick
+
 ## 0.4.0 - 2024-08-26
 
 - replace print-log-ufmt featue by print-log-csdk
