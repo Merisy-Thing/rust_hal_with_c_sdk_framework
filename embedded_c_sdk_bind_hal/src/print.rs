@@ -1,6 +1,5 @@
 use crate::ll_api::ll_cmd::*;
 
-
 #[cfg(all(feature = "print-log", not(feature = "print-log-csdk")))]
 #[macro_export]
 macro_rules! println {

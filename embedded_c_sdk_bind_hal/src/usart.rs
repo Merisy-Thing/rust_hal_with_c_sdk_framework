@@ -149,9 +149,9 @@ impl<'a> Usart<'a> {
             Err(nb::Error::WouldBlock)
         }
     }
-    
+
     /// An asynchronous read function for reading data into a provided buffer.
-    /// 
+    ///
     /// # Arguments
     /// * `buffer` - A mutable slice where the read bytes will be stored.
     ///
@@ -169,7 +169,7 @@ impl<'a> Usart<'a> {
 
         let abort = core::future::poll_fn(move |cx| {
             self.inner.rx_waker.register(cx.waker());
-            
+
             let mut reader = unsafe { self.inner.rx_buf.reader() };
             while let Some(byte) = reader.pop_one() {
                 buffer[buffer_idx] = byte;
@@ -178,7 +178,7 @@ impl<'a> Usart<'a> {
                     return core::task::Poll::Ready(Ok::<(), Error>(()));
                 }
             }
-            
+
             return core::task::Poll::Pending;
         });
 

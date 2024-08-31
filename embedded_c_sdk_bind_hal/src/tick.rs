@@ -89,10 +89,31 @@ impl Tick {
         }
     }
 
+    /// Creates a new `Tick` instance with the given value.
+    ///
+    /// # Arguments
+    /// * `value` - The value to initialize the `Tick` with.
+    ///
+    /// # Returns
+    /// * A new `Tick` instance.
+    #[inline]
     pub const fn with_value(value: TickType) -> Self {
         Tick(value)
     }
 
+    /// Retrieves the current tick value.
+    ///
+    /// # Returns
+    /// * The current tick value.
+    #[inline]
+    pub fn tick() -> TickType {
+        Self::now().0
+    }
+
+    /// Calculates the elapsed time since the creation of the `Tick` instance.
+    ///
+    /// # Returns
+    /// * A `Duration` representing the elapsed time in ticks.
     pub fn elapsed_time(self) -> Duration<TickType, 1, TICK_FREQ_HZ> {
         let tick = if let Some(res) = Self::now().0.checked_sub(self.0) {
             res
@@ -106,7 +127,7 @@ impl Tick {
 
 impl core::ops::Add for Tick {
     type Output = Self;
-    
+
     fn add(self, rhs: Self) -> Self::Output {
         Tick(self.0 + rhs.0)
     }
@@ -114,7 +135,7 @@ impl core::ops::Add for Tick {
 
 impl core::ops::Sub for Tick {
     type Output = Self;
-    
+
     fn sub(self, rhs: Self) -> Self::Output {
         Tick(self.0 - rhs.0)
     }

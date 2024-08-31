@@ -1,6 +1,5 @@
 pub use crate::ll_api::{SpiBusBitOrder, SpiBusDataSize, SpiBusId, SpiBusMode};
 use crate::{
-    gpio::{Output, Pin},
     ll_api::ll_cmd::*,
     tick::Delay,
 };
@@ -65,7 +64,7 @@ impl SpiBus {
     ///
     /// # Returns
     /// A `SpiDevice` instance ready to communicate with a specific device.
-    pub fn to_device(self, nss: Pin<Output>) -> SpiDevice {
+    pub fn to_device<NSS: OutputPin>(self, nss: NSS) -> SpiDevice<NSS> {
         SpiDevice { bus: self, nss }
     }
 
@@ -197,12 +196,12 @@ impl embedded_hal::spi::Error for Error {
     }
 }
 
-pub struct SpiDevice {
+pub struct SpiDevice<NSS> {
     bus: SpiBus,
-    nss: Pin<Output>,
+    nss: NSS,
 }
 
-impl SpiDevice {
+impl<NSS: OutputPin> SpiDevice<NSS> {
     /// Creates a new `SpiDevice` instance.
     ///
     /// # Arguments
@@ -211,16 +210,16 @@ impl SpiDevice {
     ///
     /// # Returns
     /// A new `SpiDevice` instance ready to communicate with the device over the provided SPI bus.
-    pub fn new(bus: SpiBus, nss: Pin<Output>) -> Self {
+    pub fn new(bus: SpiBus, nss: NSS) -> Self {
         SpiDevice { bus, nss }
     }
 }
 
-impl embedded_hal::spi::ErrorType for SpiDevice {
+impl<NSS: OutputPin> embedded_hal::spi::ErrorType for SpiDevice<NSS> {
     type Error = Error;
 }
 
-impl embedded_hal::spi::SpiDevice for SpiDevice {
+impl<NSS: OutputPin> embedded_hal::spi::SpiDevice for SpiDevice<NSS> {
     fn transaction(&mut self, operations: &mut [Operation<'_, u8>]) -> Result<(), Self::Error> {
         let mut result = Ok(());
 

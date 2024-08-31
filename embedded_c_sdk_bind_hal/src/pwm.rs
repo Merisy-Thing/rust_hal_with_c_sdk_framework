@@ -104,7 +104,12 @@ impl<const FREQ: u32> Pwm<FREQ> {
     /// * `period` - The desired period as a `TimerDurationU32`.
     pub fn set_period(&self, period: TimerDurationU32<FREQ>) {
         if !period.is_zero() {
-            ll_invoke_inner!(INVOKE_ID_PWM_CTRL, self.ch, PwmCtrl::SetPeriod, period.ticks());
+            ll_invoke_inner!(
+                INVOKE_ID_PWM_CTRL,
+                self.ch,
+                PwmCtrl::SetPeriod,
+                period.ticks()
+            );
         }
     }
 }

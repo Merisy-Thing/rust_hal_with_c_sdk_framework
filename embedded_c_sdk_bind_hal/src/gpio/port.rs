@@ -1,10 +1,6 @@
-use core::marker::PhantomData;
-
+use super::{BidirectionPinMode, ToGpioInitFlag};
 use crate::ll_api::{ll_cmd::*, GpioInitFlag, PortNum};
-
-trait PortModeFlag {
-    fn to_flag(&self) -> GpioInitFlag;
-}
+use core::marker::PhantomData;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum PortModeInput {
@@ -13,12 +9,12 @@ pub enum PortModeInput {
     InPullDown,
 }
 
-impl PortModeFlag for PortModeInput {
-    fn to_flag(&self) -> GpioInitFlag {
+impl ToGpioInitFlag for PortModeInput {
+    fn to_flag(&self) -> u32 {
         match self {
-            PortModeInput::InFloating => GpioInitFlag::InFloating,
-            PortModeInput::InPullUp => GpioInitFlag::InPU,
-            PortModeInput::InPullDown => GpioInitFlag::InPD,
+            PortModeInput::InFloating => GpioInitFlag::InFloating as u32,
+            PortModeInput::InPullUp => GpioInitFlag::InPU as u32,
+            PortModeInput::InPullDown => GpioInitFlag::InPD as u32,
         }
     }
 }
@@ -28,11 +24,11 @@ pub enum PortModeOutput {
     OutPP,
 }
 
-impl PortModeFlag for PortModeOutput {
-    fn to_flag(&self) -> GpioInitFlag {
+impl ToGpioInitFlag for PortModeOutput {
+    fn to_flag(&self) -> u32 {
         match self {
-            PortModeOutput::OutOD => GpioInitFlag::OutOD,
-            PortModeOutput::OutPP => GpioInitFlag::OutPP,
+            PortModeOutput::OutOD => GpioInitFlag::OutOD as u32,
+            PortModeOutput::OutPP => GpioInitFlag::OutPP as u32,
         }
     }
 }
@@ -41,13 +37,13 @@ impl PortModeFlag for PortModeOutput {
 #[repr(C)]
 pub struct PortReg {
     /// Port input data register
-    idr: *mut u16,
+    pub idr: *mut u16,
     /// Port output data register
-    odr: *mut u16,
+    pub odr: *mut u16,
     /// Port bit set register
-    bsr: *mut u16,
+    pub bsr: *mut u16,
     /// Port bit reset register
-    bcr: *mut u16,
+    pub bcr: *mut u16,
 }
 
 pub struct InputPort;
@@ -56,8 +52,28 @@ pub struct OutputPort;
 pub struct Port<MODE> {
     gpio: PortNum,
     mask: u16,
-    regs: PortReg,
+    regs: &'static PortReg,
     _mode: PhantomData<MODE>,
+}
+
+impl super::BidirectionPin for Port<()> {
+    fn mode_ctrl(&self, mode: BidirectionPinMode) {
+        self.port_init(mode.to_flag());
+    }
+    
+    fn set(&self, level: bool) {
+        let mut port = self.as_output();
+        if level {
+            port.set_bits(self.mask);
+        } else {
+            port.clr_bits(self.mask);
+        }
+    }
+    
+    fn get(&self) -> bool {
+        let mut port = self.as_input();
+        port.read_input_bits() > 0
+    }
 }
 
 impl Port<()> {
@@ -69,25 +85,13 @@ impl Port<()> {
     ///
     /// # Returns
     /// A new `Port` instance with uninitialized mode.
-    pub fn new(gpio: PortNum, mask: u16) -> Port<()> {
-        let regs: PortReg = PortReg {
-            idr: core::ptr::null_mut::<u16>(),
-            odr: core::ptr::null_mut::<u16>(),
-            bsr: core::ptr::null_mut::<u16>(),
-            bcr: core::ptr::null_mut::<u16>(),
-        };
+    pub fn new(gpio: PortNum, mask: u16, regs: &'static PortReg) -> Self {
         let port = Port {
             gpio,
             mask,
             regs,
             _mode: PhantomData,
         };
-
-        // Initialize the port registers.
-        ll_invoke_inner!(
-            INVOKE_ID_GPIO_GET_PORT_REG,
-            &(port.regs) as *const _ as usize
-        );
 
         port
     }
@@ -106,7 +110,19 @@ impl Port<()> {
         Port {
             gpio: self.gpio,
             mask: self.mask,
-            regs: self.regs.clone(),
+            regs: self.regs,
+            _mode: PhantomData,
+        }
+    }
+
+    /// Just converts the port as input mode.
+    /// # Returns
+    /// A new `Port` instance configured as an input port.
+    fn as_input(&self) -> Port<InputPort> {
+        Port {
+            gpio: self.gpio,
+            mask: self.mask,
+            regs: self.regs,
             _mode: PhantomData,
         }
     }
@@ -125,7 +141,19 @@ impl Port<()> {
         Port {
             gpio: self.gpio,
             mask: self.mask,
-            regs: self.regs.clone(),
+            regs: self.regs,
+            _mode: PhantomData,
+        }
+    }
+
+    /// Just converts the port as output mode.
+    /// # Returns
+    /// A new `Port` instance configured as an output port.
+    fn as_output(&self) -> Port<OutputPort> {
+        Port {
+            gpio: self.gpio,
+            mask: self.mask,
+            regs: self.regs,
             _mode: PhantomData,
         }
     }
@@ -134,7 +162,7 @@ impl Port<()> {
     ///
     /// # Arguments
     /// * `mode` - The initialization flag for the pins.
-    fn port_init(&self, mode: GpioInitFlag) {
+    fn port_init(&self, mode: u32) {
         for pin in 0..16 {
             if (self.mask & (1 << pin)) > 0 {
                 ll_invoke_inner!(INVOKE_ID_GPIO_INIT, self.gpio, pin, mode);

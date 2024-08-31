@@ -8,8 +8,8 @@
             "type": "process",
             "command": "cargo",
             "options": {
-				"cwd": "${workspaceFolder}/example_ch32v"
-			},
+                "cwd": "${workspaceFolder}/example_ch32v"
+            },
             "args": [
                 "build",
                 "--example",
@@ -28,9 +28,12 @@
             "type": "process",
             "command": "cargo",
             "options": {
-				"cwd": "${workspaceFolder}/${input:Example}"
-			},
-            "args": ["build", "--release"],
+                "cwd": "${workspaceFolder}/example_hk32"
+            },
+            "args": [
+                "build",
+                "--release"
+            ],
             "problemMatcher": [
                 "$rustc"
             ],
@@ -44,9 +47,11 @@
             "type": "process",
             "command": "cargo",
             "options": {
-				"cwd": "${workspaceFolder}/${input:Example}"
-			},
-            "args": ["clean"],
+                "cwd": "${workspaceFolder}/${input:Example}"
+            },
+            "args": [
+                "clean"
+            ],
             "problemMatcher": [],
             "group": "build"
         },
@@ -55,9 +60,12 @@
             "type": "process",
             "command": "cargo",
             "options": {
-				"cwd": "${workspaceFolder}/${input:Example}"
-			},
-            "args": ["size", "--release"],
+                "cwd": "${workspaceFolder}/${input:Example}"
+            },
+            "args": [
+                "size",
+                "--release"
+            ],
             "problemMatcher": [],
             "dependsOn": [],
             "group": {
@@ -70,9 +78,16 @@
             "type": "process",
             "command": "cargo",
             "options": {
-				"cwd": "${workspaceFolder}/${input:Example}"
-			},
-            "args": ["objcopy", "--release", "--", "-O", "ihex", "target/example.hex"],
+                "cwd": "${workspaceFolder}/${input:Example}"
+            },
+            "args": [
+                "objcopy",
+                "--release",
+                "--",
+                "-O",
+                "ihex",
+                "target/example.hex"
+            ],
             "problemMatcher": [],
             "group": "build"
         },
@@ -81,70 +96,85 @@
             "type": "process",
             "command": "cargo",
             "options": {
-				"cwd": "${workspaceFolder}/${input:Example}"
-			},
-            "args": ["objcopy", "--release", "--", "-O", "binary", "target/example.bin"],
+                "cwd": "${workspaceFolder}/${input:Example}"
+            },
+            "args": [
+                "objcopy",
+                "--release",
+                "--",
+                "-O",
+                "binary",
+                "target/example.bin"
+            ],
             "problemMatcher": [],
             "group": "build"
         },
-		{
-			"label": "Flash (pyOCD)",
-			"type": "shell",
-			"command": "pyocd",
-			"options": {
-				"cwd": "${workspaceFolder}/${input:Example}"
-			},
-			"args": [
-				"flash",
-				"--erase", "sector",
-				"--target", "HK32F0301MF4P7C",
-				"--pack=..\\..\\HK32F0301MxxC.pack",
-				"--format", "elf",
-				"target\\thumbv6m-none-eabi\\debug\\example"
-			],
-            "dependsOn": [],
-			"problemMatcher": []
-		},
-		{
-			"label": "Flash(Wlink)",
-			"type": "shell",
-			"command": "wlink",
+        {
+            "label": "Flash (pyOCD)",
+            "type": "shell",
+            "command": "pyocd",
             "options": {
-				"cwd": "${workspaceFolder}/example_ch32v"
-			},
-			"args": [
-				"flash", "target\\riscv32imac-unknown-none-elf\\debug\\examples\\${input:Ch32Examples}",
-			],
+                "cwd": "${workspaceFolder}/example_hk32"
+            },
+            "args": [
+                "flash",
+                "--erase",
+                "sector",
+                "--target",
+                "HK32F0301MF4P7C",
+                "--pack=..\\..\\HK32F0301MxxC.pack",
+                "--format",
+                "elf",
+                "target\\thumbv6m-none-eabi\\release\\example"
+            ],
             "dependsOn": [],
-		}
+            "problemMatcher": []
+        },
+        {
+            "label": "Flash(Wlink)",
+            "type": "shell",
+            "command": "wlink",
+            "options": {
+                "cwd": "${workspaceFolder}/example_ch32v"
+            },
+            "args": [
+                "flash",
+                "target\\riscv32imac-unknown-none-elf\\debug\\examples\\${input:Ch32Examples}",
+            ],
+            "dependsOn": [],
+        }
     ],
-	"inputs": [
-		{
-			"id": "Example",
-			"type": "pickString",
-			"description": "What example do you want to process?",
-			"options": [
-				"example_ch32v",
-				"example_hk32",
-			],
-			"default": "example_ch32v"
-		},
-		{
-			"id": "Ch32Examples",
-			"type": "pickString",
-			"description": "What example do you want to process?",
-			"options": [
+    "inputs": [
+        {
+            "id": "Example",
+            "type": "pickString",
+            "description": "What example do you want to process?",
+            "options": [
+                "example_ch32v",
+                "example_hk32",
+            ],
+            "default": "example_hk32"
+        },
+        {
+            "id": "Ch32Examples",
+            "type": "pickString",
+            "description": "What example do you want to process?",
+            "options": [
+                "bmp180",
+                "fast_pin",
+                "port",
                 "print",
                 "tft_0_96",
+                "tft_0_96_ring",
                 "spi_flash",
                 "pwm",
-				"gpio",
-				"adc",
-				"adc-buffered",
-				"usart",
-				"bare_metal",
-			],
-			"default": "print"
-		}
-	]
+                "gpio",
+                "adc",
+                "adc-buffered",
+                "usart",
+                "bare_metal",
+            ],
+            "default": "bmp180"
+        }
+    ]
 }

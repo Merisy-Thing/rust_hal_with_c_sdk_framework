@@ -15,24 +15,29 @@
 #include "adc.h"
 #include "print.h"
 
+static uint32_t SYS_TICK_1MS_CNT = 0;
+
 extern void sys_tick_inc(void);
 
 void SysTick_Handler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 void SysTick_Handler( void )
 {
     SysTick->SR=0;
+	SysTick->CMP += (uint64_t)SYS_TICK_1MS_CNT;
     sys_tick_inc();
 }
 
 void SysTick_Config(void)
 {
+	SYS_TICK_1MS_CNT = SystemCoreClock/1000;
+
     SysTick->CTLR= 0x00000000;
     SysTick->SR  = 0x00000000;
     SysTick->CNT = 0x00000000;
-    SysTick->CMP = SystemCoreClock/1000 - 1;;
+    SysTick->CMP = SYS_TICK_1MS_CNT - 1;;
     
     NVIC_SetPriority(SysTicK_IRQn, 15);
-    SysTick->CTLR |= 0x0F;
+    SysTick->CTLR |= 0x07;
     NVIC_EnableIRQ(SysTicK_IRQn);
 }
 
@@ -66,26 +71,18 @@ void hal_hw_init(void)
 
 void delay_ns(uint32_t ns)
 {
-    uint32_t start = SysTick->CNT;
-    uint32_t target = (start + ns * SystemCoreClock / 1000000) / 1000;
-    uint32_t curr;
+	if(ns < 950) {
+		return;
+	}
 
-    if(target > start) {
-        while(1) {
-            curr = SysTick->CNT;
-            if((curr >= target) || (curr < start)) {
-                break;
-            }
-        }
-    } else {
-        while(1) {
-            curr = SysTick->CNT;
-            if((curr >= target) && (curr < start)) {
-                break;
-            }
-        }
-    }
+	ns -= 950;
+	uint32_t tick_ns = (ns * (SystemCoreClock / 1000000)) / 1000;
+
+    volatile uint64_t target = SysTick->CNT + (uint64_t)tick_ns;
+
+	while(SysTick->CNT < target);
 }
+
 void ll_putc(char c)
 {
 	USART_TypeDef *USARTx;

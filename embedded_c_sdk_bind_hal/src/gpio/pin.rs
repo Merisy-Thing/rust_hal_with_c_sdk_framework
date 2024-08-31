@@ -1,18 +1,14 @@
-use core::marker::PhantomData;
-
+use super::{BidirectionPinMode, ToGpioInitFlag};
 use crate::ll_api::{ll_cmd::*, GpioInitFlag, PinNum, PortNum};
-
-trait PinModeFlag {
-    fn to_flag(&self) -> GpioInitFlag;
-}
+use core::marker::PhantomData;
 
 pub enum PinModeAnalog {
     Analog,
 }
 
-impl PinModeFlag for PinModeAnalog {
-    fn to_flag(&self) -> GpioInitFlag {
-        GpioInitFlag::Analog
+impl ToGpioInitFlag for PinModeAnalog {
+    fn to_flag(&self) -> u32 {
+        GpioInitFlag::Analog as u32
     }
 }
 
@@ -22,12 +18,12 @@ pub enum PinModeInput {
     InPullDown,
 }
 
-impl PinModeFlag for PinModeInput {
-    fn to_flag(&self) -> GpioInitFlag {
+impl ToGpioInitFlag for PinModeInput {
+    fn to_flag(&self) -> u32 {
         match self {
-            PinModeInput::InFloating => GpioInitFlag::InFloating,
-            PinModeInput::InPullUp => GpioInitFlag::InPU,
-            PinModeInput::InPullDown => GpioInitFlag::InPD,
+            PinModeInput::InFloating => GpioInitFlag::InFloating as u32,
+            PinModeInput::InPullUp => GpioInitFlag::InPU as u32,
+            PinModeInput::InPullDown => GpioInitFlag::InPD as u32,
         }
     }
 }
@@ -35,11 +31,11 @@ pub enum PinModeOutput {
     OutOD,
     OutPP,
 }
-impl PinModeFlag for PinModeOutput {
-    fn to_flag(&self) -> GpioInitFlag {
+impl ToGpioInitFlag for PinModeOutput {
+    fn to_flag(&self) -> u32 {
         match self {
-            PinModeOutput::OutOD => GpioInitFlag::OutOD,
-            PinModeOutput::OutPP => GpioInitFlag::OutPP,
+            PinModeOutput::OutOD => GpioInitFlag::OutOD as u32,
+            PinModeOutput::OutPP => GpioInitFlag::OutPP as u32,
         }
     }
 }
@@ -50,16 +46,16 @@ pub enum PinModeAlternate {
     AFPP,
 }
 
-impl PinModeFlag for PinModeAlternate {
-    fn to_flag(&self) -> GpioInitFlag {
+impl ToGpioInitFlag for PinModeAlternate {
+    fn to_flag(&self) -> u32 {
         match self {
             PinModeAlternate::AF(idx) => {
                 use GpioInitFlag::*;
                 const AF_FLAGS: [GpioInitFlag; 8] = [AF0, AF1, AF2, AF3, AF4, AF5, AF6, AF7];
-                AF_FLAGS.get(*idx as usize).copied().unwrap_or(AF0)
+                AF_FLAGS.get(*idx as usize).copied().unwrap_or(AF0) as u32
             }
-            PinModeAlternate::AFOD => GpioInitFlag::AFOD,
-            PinModeAlternate::AFPP => GpioInitFlag::AFPP,
+            PinModeAlternate::AFOD => GpioInitFlag::AFOD as u32,
+            PinModeAlternate::AFPP => GpioInitFlag::AFPP as u32,
         }
     }
 }
@@ -72,6 +68,20 @@ pub struct Pin<MODE> {
     pub(crate) port: PortNum,
     pub(crate) pin: PinNum,
     _mode: PhantomData<MODE>,
+}
+
+impl super::BidirectionPin for Pin<()> {
+    fn mode_ctrl(&self, mode: BidirectionPinMode) {
+        ll_invoke_inner!(INVOKE_ID_GPIO_INIT, self.port, self.pin, mode.to_flag());
+    }
+    
+    fn set(&self, level: bool) {
+        ll_invoke_inner!(INVOKE_ID_GPIO_SET, self.port, self.pin, level);
+    }
+    
+    fn get(&self) -> bool {
+        ll_invoke_inner!(INVOKE_ID_GPIO_GET_INPUT, self.port, self.pin) > 0
+    }
 }
 
 impl Pin<()> {

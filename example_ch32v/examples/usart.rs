@@ -11,7 +11,7 @@ use embedded_c_sdk_bind_hal::{
     tick::{Tick, Delay},
     usart::{self, Usart}
 };
-use embedded_c_sdk_bind_hal as csdk_hal;
+use embedded_c_sdk_bind_hal::{self as csdk_hal, gpio::{FastPinReg, PortReg}};
 use embedded_hal::{self, delay::DelayNs};
 //use embedded_hal_nb::serial::Read;
 use embedded_io::{self, Write};
@@ -21,6 +21,13 @@ use panic_halt as _;
 
 use embassy_executor::Spawner;
 use embassy_time::Timer;
+
+const PC_REG: PortReg = PortReg {
+	idr: 0x40011008 as *mut _,
+    odr: 0x4001100C as *mut _,
+    bsr: 0x40011010 as *mut _,
+    bcr: 0x40011014 as *mut _,
+};
 
 #[embassy_executor::main(entry = "riscv_rt_macros::entry")]
 async fn main(spawner: Spawner) -> ! {
@@ -37,7 +44,7 @@ async fn main(spawner: Spawner) -> ! {
 
     let _usart2_tx = Pin::new(PortNum::PA, PinNum::Pin2).into_alternate(PinModeAlternate::AFPP);
     let _usart2_rx = Pin::new(PortNum::PA, PinNum::Pin3).into_input(PinModeInput::InPullUp);
-    let _portc = Port::new(PortNum::PC, 0xFFFF).into_output(PortModeOutput::OutPP);
+    let _portc = Port::new(PortNum::PC, 0xFFFF, &PC_REG).into_output(PortModeOutput::OutPP);
 
     let _ = spawner.spawn(task_1(usart2.clone()));
 
