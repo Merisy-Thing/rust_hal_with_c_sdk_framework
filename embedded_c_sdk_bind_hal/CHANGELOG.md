@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0 - 2024-09-02
+ - add i2c mod and ll_api define
+ - impl embedded_hal InputPin trait for OutputPin
+ - separate soft-i2c to stand-alone crate
+ - print-log-csdk now support print {:?} Debug format
+ - make Delay::new() const
+
 ## 0.5.0 - 2024-08-31
 
 - add fastpin to speedup pin operation
