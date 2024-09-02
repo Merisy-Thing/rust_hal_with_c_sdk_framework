@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include "hk32f0301mxxc.h"
 #include "wrapper.h"
+#include "print.h"
 
 static void uart_config()
 {
@@ -211,7 +212,11 @@ int gpio_exti(uint32_t port, uint32_t pin, uint32_t flags)
 
 	return 0;
 }
-
+void ll_putc(char c)
+{
+	UART_SendData(UART1, (uint8_t)c);
+	while(UART_GetFlagStatus(UART1, UART_FLAG_TXE) == 0);
+}
 int ll_invoke(enum INVOKE invoke_id, ...)
 {
 	int result = 0;
@@ -241,9 +246,14 @@ int ll_invoke(enum INVOKE invoke_id, ...)
 		uint8_t* p_str = va_arg(args, uint8_t*);
 		uint32_t len = va_arg(args, uint32_t);
 		while (len--) {
-			UART_SendData(UART1, *p_str++);
-        	while(UART_GetFlagStatus(UART1, UART_FLAG_TXE) == 0);
+			ll_putc(*p_str++);
 		}
+	}
+	break;
+	case ID_LOG_PRINT:
+	{
+		const char* fmt = va_arg(args, const char*);
+		ll_vprintf(fmt, args);
 	}
 	break;
 	case ID_GPIO_INIT:

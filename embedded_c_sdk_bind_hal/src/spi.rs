@@ -1,8 +1,5 @@
 pub use crate::ll_api::{SpiBusBitOrder, SpiBusDataSize, SpiBusId, SpiBusMode};
-use crate::{
-    ll_api::ll_cmd::*,
-    tick::Delay,
-};
+use crate::{ll_api::ll_cmd::*, tick::Delay};
 use core::{cmp::min, ptr};
 use embedded_hal::{delay::DelayNs, digital::OutputPin, spi::Operation};
 
@@ -38,6 +35,7 @@ impl Default for Config {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct SpiBus {
     bus: SpiBusId,
 }

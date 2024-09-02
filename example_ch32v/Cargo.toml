@@ -25,16 +25,20 @@ embedded-storage = "0.3.1"
 st7735-lcd = "0.10.0"
 embedded-graphics = { version = "0.8.1", features = ["fixed_point"]}
 bmp180-embedded-hal = { version = "0.1.0", default-features = false, features = ["blocking", "impl-debug"]}
+once_cell = { version = "1.19.0", default-features = false, features = ["portable-atomic"]}
 
 [dependencies.embedded-c-sdk-bind-hal]
 path = "../embedded_c_sdk_bind_hal"
 features = [
 	"tick-size-64bit",
 	"embassy",
-	"print-log",
+	"print-log-csdk",
 	"USART-2",
 	"adc-buffered-ch0",
 ]
+
+[dependencies.soft-i2c]
+path = "../soft-i2c"
 
 [profile.release]
 strip = false

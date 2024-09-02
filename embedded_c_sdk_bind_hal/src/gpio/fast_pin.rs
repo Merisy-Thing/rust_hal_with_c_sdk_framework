@@ -1,4 +1,4 @@
-use super::{BidirectionPinMode, PinNum, ToGpioInitFlag};
+use super::{PinNum, ToGpioInitFlag};
 use crate::ll_api::{ll_cmd::*, GpioInitFlag, PortNum};
 use core::marker::PhantomData;
 
@@ -78,29 +78,9 @@ impl ToGpioInitFlag for FastPinModeOutput {
 pub struct InputFastPin;
 pub struct OutputFastPin;
 
+#[derive(Clone, Copy, Debug)]
 pub struct FastPin<R, N, MODE> {
     phantom: PhantomData<(R, N, MODE)>,
-}
-
-impl<R: FastPinReg, N: FastPinNum, MODE> super::BidirectionPin for FastPin<R, N, MODE> {
-    /// Configure the pin mode.
-    fn mode_ctrl(&self, mode: BidirectionPinMode) {
-        ll_invoke_inner!(INVOKE_ID_GPIO_INIT, R::PORT, N::PIN, mode.to_flag());
-    }
-    
-    /// Set the pin level.
-    fn set(&self, level: bool) {
-        if level {
-            unsafe { core::ptr::write_volatile(R::BSR as *mut u16, 1 << N::PIN as u8) };
-        } else {
-            unsafe { core::ptr::write_volatile(R::BCR as *mut u16, 1 << N::PIN as u8) };
-        }
-    }
-    
-    /// Get the current pin level.
-    fn get(&self) -> bool {
-        (unsafe { core::ptr::read_volatile(R::IDR as *const u16) } & (1 << N::PIN as u8)) != 0
-    }
 }
 
 impl<R: FastPinReg, N: FastPinNum, MODE> FastPin<R, N, MODE> {
@@ -168,6 +148,18 @@ impl<R: FastPinReg, N: FastPinNum> FastPin<R, N, OutputFastPin> {
     pub fn is_output_low(&self) -> bool {
         (unsafe { core::ptr::read_volatile(R::ODR as *const u16) } & (1 << N::PIN as u8)) == 0
     }
+
+    /// Check if the open drain pin is high.
+    #[inline]
+    pub fn is_input_high(&self) -> bool {
+        (unsafe { core::ptr::read_volatile(R::IDR as *const u16) } & (1 << N::PIN as u8)) != 0
+    }
+
+    /// Check if the open drain pin is low.
+    #[inline]
+    pub fn is_input_low(&self) -> bool {
+        (unsafe { core::ptr::read_volatile(R::IDR as *const u16) } & (1 << N::PIN as u8)) == 0
+    }
 }
 
 impl<R: FastPinReg, N: FastPinNum, MODE> embedded_hal::digital::ErrorType for FastPin<R, N, MODE> {
@@ -212,6 +204,18 @@ impl<R: FastPinReg, N: FastPinNum> embedded_hal::digital::StatefulOutputPin
 }
 
 impl<R: FastPinReg, N: FastPinNum> embedded_hal::digital::InputPin for FastPin<R, N, InputFastPin> {
+    #[inline(always)]
+    fn is_high(&mut self) -> Result<bool, Self::Error> {
+        Ok(self.is_input_high())
+    }
+
+    #[inline(always)]
+    fn is_low(&mut self) -> Result<bool, Self::Error> {
+        Ok(self.is_input_low())
+    }
+}
+
+impl<R: FastPinReg, N: FastPinNum> embedded_hal::digital::InputPin for FastPin<R, N, OutputFastPin> {
     #[inline(always)]
     fn is_high(&mut self) -> Result<bool, Self::Error> {
         Ok(self.is_input_high())

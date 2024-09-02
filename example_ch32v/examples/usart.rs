@@ -11,7 +11,10 @@ use embedded_c_sdk_bind_hal::{
     tick::{Tick, Delay},
     usart::{self, Usart}
 };
-use embedded_c_sdk_bind_hal::{self as csdk_hal, gpio::{FastPinReg, PortReg}};
+use embedded_c_sdk_bind_hal::{
+    self as csdk_hal,
+    gpio::{FastPinReg, PortReg},
+};
 use embedded_hal::{self, delay::DelayNs};
 //use embedded_hal_nb::serial::Read;
 use embedded_io::{self, Write};
@@ -23,7 +26,7 @@ use embassy_executor::Spawner;
 use embassy_time::Timer;
 
 const PC_REG: PortReg = PortReg {
-	idr: 0x40011008 as *mut _,
+    idr: 0x40011008 as *mut _,
     odr: 0x4001100C as *mut _,
     bsr: 0x40011010 as *mut _,
     bcr: 0x40011014 as *mut _,
@@ -55,7 +58,6 @@ async fn main(spawner: Spawner) -> ! {
         delay.delay_ms(900);
         println!("usart2 wr!");
         usart2.write(b"123456789abc\r\n").ok();
-        
     }
 }
 
@@ -70,12 +72,12 @@ async fn task_1(mut usart: Usart<'static>) {
         match usart.read(&mut buffer).await {
             Ok(_) => {
                 println!("read: {:?}", &buffer);
-            },
+            }
             Err(_e) => {
                 println!(" usart.read err");
-            },
+            }
         }
-        
+
         // while let Ok(byte) = usart.read() {
         //     print!("_{}", byte as char);
         // }

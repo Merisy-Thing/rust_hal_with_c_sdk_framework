@@ -11,6 +11,7 @@ pub type AdcDataType = u16;
 #[cfg(feature = "adc-data-type-u8")]
 pub type AdcDataType = u8;
 
+#[derive(Clone, Debug)]
 pub struct Adc {
     ch: AdcChannel,
 }

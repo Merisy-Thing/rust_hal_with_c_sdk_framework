@@ -160,6 +160,7 @@
             "type": "pickString",
             "description": "What example do you want to process?",
             "options": [
+                "bmp180_api",
                 "bmp180",
                 "fast_pin",
                 "port",
@@ -174,7 +175,7 @@
                 "usart",
                 "bare_metal",
             ],
-            "default": "bmp180"
+            "default": "bmp180_api"
         }
     ]
 }

@@ -118,12 +118,42 @@ enum {
     PWM_CTRL_ACTIVE_LOW  = 11,
 };
 
+enum ADC {
+    ADC_CH0,
+    ADC_CH1,
+    ADC_CH2,
+    ADC_CH3,
+    ADC_CH4,
+    ADC_CH5,
+    ADC_CH6,
+    ADC_CH7,
+    ADC_MAX,
+
+    ADC_CTRL_START = 0,
+    ADC_CTRL_STOP = 1,
+    ADC_CTRL_CONVERT = 2,
+};
+
+enum {
+	I2C_BUS0 = 0x00,
+	I2C_BUS1 = 0x01,
+	I2C_BUS2 = 0x02,
+	I2C_BUS3 = 0x03,
+	I2C_BUS4 = 0x04,
+	I2C_BUS_MAX,
+
+    I2C_SEVEN_BIT_ADDR = 0,
+    I2C_TEN_BIT_ADDR = 1,
+};
+
 enum INVOKE {
 	ID_SYSTEM_INIT = 100,
+	ID_SYSTEM_RESET = 101,
 
 	ID_LL_DRV_INIT = 200,
 	ID_DELAY_NANO  = 201,
 	ID_LOG_PUTS    = 202,
+	ID_LOG_PRINT   = 203,
 
 	ID_GPIO_INIT = 300,
 	ID_GPIO_SET,
@@ -143,6 +173,16 @@ enum INVOKE {
 	ID_PWM_INIT  = 600,
 	ID_PWM_DEINIT,
 	ID_PWM_CTRL,
+	
+    ID_ADC_INIT = 700,
+    ID_ADC_DEINIT,
+    ID_ADC_CTRL,
+
+    ID_I2C_INIT = 800,
+    ID_I2C_DEINIT,
+    ID_I2C_READ,
+    ID_I2C_WRITE,
+    ID_I2C_WRITE_READ,
 };
 
 int ll_invoke(enum INVOKE invoke_id, ...);

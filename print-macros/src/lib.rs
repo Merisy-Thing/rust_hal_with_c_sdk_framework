@@ -12,7 +12,7 @@ use syn::{
     parse_macro_input,
     punctuated::Punctuated,
     spanned::Spanned,
-    Expr, ExprLit, LitStr, Token,
+    Expr, ExprLit, LitStr, Token, Ident,
 };
 
 #[proc_macro]
@@ -73,6 +73,7 @@ fn write(input: TokenStream, newline: bool) -> TokenStream {
 
     let mut args = vec![];
     let mut exprs = vec![];
+    let mut dbgs = vec![];
     let mut i = 0;
     let mut format = String::new();
     for piece in pieces {
@@ -103,7 +104,7 @@ fn write(input: TokenStream, newline: bool) -> TokenStream {
                         }
                     }
                 }
-                Piece::Display | Piece::Debug => {
+                Piece::Display => {
                     let mut ok = false;
                     let mut err_msg = "".to_string();
                     let mut lable = "";
@@ -188,7 +189,20 @@ fn write(input: TokenStream, newline: bool) -> TokenStream {
 
                     format.push_str(lable);
                 }
+                Piece::Debug => {
+                    let buf_x = mk_name_with_idx("buf", i);
+                    let str_x = mk_name_with_idx("str", i);
 
+                    dbgs.push(quote!(
+                        let mut #buf_x = [0u8; 256];
+                        let #str_x = format::fmt_to_buf(
+                            &mut #buf_x,
+                            format_args!("{:?}", #arg),
+                        ).unwrap_or("format error");
+                    ));
+                    format.push_str("%S");
+                    exprs.push(quote!(  #str_x.as_ptr() as *const _ as InvokeParam, #str_x.len() ));
+                }
                 Piece::Hex {
                     upper_case,
                     // pad_char,
@@ -206,6 +220,8 @@ fn write(input: TokenStream, newline: bool) -> TokenStream {
     quote!(
         unsafe {
             use embedded_c_sdk_bind_hal::*;
+            
+            #(#dbgs )*
             ll_invoke( INVOKE_ID_LOG_PRINT, concat!(#format, "\0").as_ptr() as *const _ as InvokeParam, #(#exprs as InvokeParam, )* )
         }
     )
@@ -322,6 +338,10 @@ impl Piece<'_> {
     fn is_str(&self) -> bool {
         matches!(self, Piece::Str(_))
     }
+}
+
+fn mk_name_with_idx(prefix: &str, i: usize) -> Ident {
+    Ident::new(&format!("{}_{}", prefix, i), Span::call_site())
 }
 
 // `}}` -> `}`

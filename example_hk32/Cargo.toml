@@ -12,7 +12,6 @@ panic-halt = "0.2"
 
 embedded-hal = { version = "1.0.0" }
 
-
 embassy-executor = { version="0.6.0", features=["arch-cortex-m", "executor-thread", "integrated-timers", "task-arena-size-1024"] }
 embassy-time = { version="0.3.2", features=["tick-hz-1_000"] }
 embassy-futures = "0.1.1"
@@ -23,7 +22,7 @@ ll_bind_hk32F0301mxxc = { version = "0.1.0", path = "../ll_bind_hk32F0301mxxc", 
 path = "../embedded_c_sdk_bind_hal"
 features = [
 	"embassy",
-	"print-log",
+	"print-log-csdk",
 ]
 
 [profile.release]

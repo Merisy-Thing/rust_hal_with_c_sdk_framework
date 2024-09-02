@@ -7,13 +7,14 @@ mod tick_freq_hz;
 
 pub mod adc;
 pub mod gpio;
+pub mod i2c;
 pub mod print;
 pub mod pwm;
 pub mod spi;
 pub mod tick;
 pub mod usart;
-pub mod soft_i2c;
 
+pub use common::format;
 pub use ll_api::ll_cmd::*;
 
 #[cfg(feature = "print-log-csdk")]

@@ -134,6 +134,18 @@ enum ADC {
     ADC_CTRL_CONVERT = 2,
 };
 
+enum {
+	I2C_BUS0 = 0x00,
+	I2C_BUS1 = 0x01,
+	I2C_BUS2 = 0x02,
+	I2C_BUS3 = 0x03,
+	I2C_BUS4 = 0x04,
+	I2C_BUS_MAX,
+
+    I2C_SEVEN_BIT_ADDR = 0,
+    I2C_TEN_BIT_ADDR = 1,
+};
+
 enum INVOKE {
 	ID_SYSTEM_INIT = 100,
 	ID_SYSTEM_RESET = 101,
@@ -165,6 +177,12 @@ enum INVOKE {
     ID_ADC_INIT = 700,
     ID_ADC_DEINIT,
     ID_ADC_CTRL,
+
+    ID_I2C_INIT = 800,
+    ID_I2C_DEINIT,
+    ID_I2C_READ,
+    ID_I2C_WRITE,
+    ID_I2C_WRITE_READ,
 };
 
 int ll_invoke(enum INVOKE invoke_id, ...);

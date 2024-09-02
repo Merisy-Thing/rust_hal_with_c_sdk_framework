@@ -1,0 +1,14 @@
+[package]
+name = "soft-i2c"
+version = "0.1.0"
+edition = "2021"
+authors = ["Merisy-Thing <merisy-thing@outlook.com>"]
+description = "Soft i2c for any open drain pin"
+readme = "README.md"
+keywords = ["embedded", "i2c", "iic", "soft i2c"]
+categories = ["embedded", "no-std"]
+license = "MIT"
+repository = "https://github.com/Merisy-Thing/rust_hal_with_c_sdk_framework/soft-i2c"
+
+[dependencies]
+embedded-hal = { version = "1.0.0" }

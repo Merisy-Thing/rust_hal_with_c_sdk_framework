@@ -219,6 +219,23 @@ pub enum AdcCtrl {
     Convert = 2,
 }
 
+//I2C BUS
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[repr(u8)]
+pub enum I2CBusId {
+    Bus0 = 0,
+    Bus1 = 1,
+    Bus2 = 2,
+    Bus3 = 3,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[repr(u8)]
+pub enum I2CBusAddrBits {
+    SevenBitAddr = 0,
+    TenBitAddr = 1,
+}
+
 pub mod ll_cmd {
     //INVOKE
     pub type InvokeParam = ::core::ffi::c_uint;
@@ -251,7 +268,12 @@ pub mod ll_cmd {
     pub const INVOKE_ID_ADC_DEINIT: InvokeParam = 701;
     pub const INVOKE_ID_ADC_CTRL: InvokeParam = 702;
     pub const INVOKE_ID_ADC_CUSTOM_BASE: InvokeParam = 750;
-
+    pub const INVOKE_ID_I2C_INIT: InvokeParam = 800;
+    pub const INVOKE_ID_I2C_DEINIT: InvokeParam = 801;
+    pub const INVOKE_ID_I2C_READ: InvokeParam = 802;
+    pub const INVOKE_ID_I2C_WRITE: InvokeParam = 803;
+    pub const INVOKE_ID_I2C_WRITE_READ: InvokeParam = 804;
+    pub const INVOKE_ID_I2C_CUSTOM_BASE: InvokeParam = 850;
     //For user custom
     pub const INVOKE_ID_DEV_CUSTOM_BASE: InvokeParam = 10_000;
 

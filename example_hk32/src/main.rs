@@ -5,7 +5,7 @@ mod interrupt;
 #[allow(unused_imports)]
 #[rustfmt::skip]
 use embedded_c_sdk_bind_hal::{
-    println,
+    println, format,
     pwm::{Pwm, PwmChannel, PwmPolarity},
     gpio::{ Pin, PinNum, PinModeInput, PinModeOutput, Port, PortNum, PortModeInput, ExtiMode},
     tick::{Tick, Delay}
@@ -59,10 +59,19 @@ async fn main(spawner: Spawner) -> ! {
     }
 }
 
+#[derive(Debug)]
+struct Test {
+    item1: u32,
+    item2: u32,
+}
+
 #[embassy_executor::task]
 async fn task_1() {
     loop {
-        println!("hello task_1!");
+        let test1 = Test{item1: 1, item2: 2};
+        let test2 = Test{item1: 3, item2: 4};
+
+        println!("hello task_1!>{:?} {:?}<", test1, test2);
 
         Timer::after_ticks(500 as u64).await;
     }

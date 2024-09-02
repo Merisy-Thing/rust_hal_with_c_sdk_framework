@@ -3,6 +3,7 @@ pub use crate::ll_api::{PwmChannel, PwmPolarity};
 use core::convert::Infallible;
 use fugit::TimerDurationU32;
 
+#[derive(Clone, Debug)]
 pub struct Pwm<const FREQ: u32> {
     ch: PwmChannel,
 }

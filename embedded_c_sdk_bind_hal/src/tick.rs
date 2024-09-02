@@ -151,6 +151,7 @@ impl core::ops::Sub for Tick {
 /// let mut delay = Delay::new(); // Create a delay object for a 1000 Hz tick frequency.
 /// delay.delay_ms(500); // Delay for 500 milliseconds.
 /// ```
+#[derive(Debug, Clone, Copy)]
 pub struct Delay;
 
 impl Delay {
@@ -160,7 +161,7 @@ impl Delay {
     /// ```
     /// let mut delay = Delay::new(); // Create a delay object for a 1000 Hz tick frequency.
     /// ```
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Delay
     }
 }

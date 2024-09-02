@@ -292,6 +292,57 @@ int ll_invoke(enum INVOKE invoke_id, ...)
 		result = pwm_ctrl(pwm_ch, ctrl, param);
 	}
 	break;
+	case ID_I2C_INIT:
+	{
+		//ll_invoke_inner!(INVOKE_ID_I2C_INIT, bus, CLK_HZ, flag_param);
+		uint32_t bus_id = va_arg(args, uint32_t);
+		uint32_t clk_hz = va_arg(args, uint32_t);
+		uint32_t flags = va_arg(args, uint32_t);
+
+		result = i2c_init(bus_id, clk_hz, flags);
+
+    }
+	break;
+	case ID_I2C_DEINIT:
+	{
+		//TODO
+    }
+	break;
+	case ID_I2C_READ:
+	{
+		uint32_t bus_id = va_arg(args, uint32_t);
+		uint32_t addr_bits = va_arg(args, uint32_t);
+		uint32_t dev_addr = va_arg(args, uint32_t);
+		uint8_t* p_read = va_arg(args, uint8_t*);
+		uint32_t size = va_arg(args, uint32_t);
+
+		result = i2c_read(bus_id, addr_bits, dev_addr, p_read, size);
+    }
+	break;
+	case ID_I2C_WRITE:
+	{
+		uint32_t bus_id = va_arg(args, uint32_t);
+		uint32_t addr_bits = va_arg(args, uint32_t);
+		uint32_t dev_addr = va_arg(args, uint32_t);
+		uint8_t* p_write = va_arg(args, uint8_t*);
+		uint32_t size = va_arg(args, uint32_t);
+
+		result = i2c_write(bus_id, addr_bits, dev_addr, p_write, size);
+    }
+	break;
+	case ID_I2C_WRITE_READ:
+	{
+		uint32_t bus_id = va_arg(args, uint32_t);
+		uint32_t addr_bits = va_arg(args, uint32_t);
+		uint32_t dev_addr = va_arg(args, uint32_t);
+		uint8_t* p_write = va_arg(args, uint8_t*);
+		uint32_t wr_size = va_arg(args, uint32_t);
+		uint8_t* p_read = va_arg(args, uint8_t*);
+		uint32_t rd_size = va_arg(args, uint32_t);
+
+		result = i2c_write_read(bus_id, addr_bits, dev_addr, p_write, wr_size, p_read, rd_size);
+	}
+	break;
 	default:
 		result = -1000;
 	break;

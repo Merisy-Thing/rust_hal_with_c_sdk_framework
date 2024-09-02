@@ -1,4 +1,4 @@
-use super::{BidirectionPinMode, ToGpioInitFlag};
+use super::ToGpioInitFlag;
 use crate::ll_api::{ll_cmd::*, GpioInitFlag, PortNum};
 use core::marker::PhantomData;
 
@@ -49,31 +49,12 @@ pub struct PortReg {
 pub struct InputPort;
 pub struct OutputPort;
 
+#[derive(Clone, Copy, Debug)]
 pub struct Port<MODE> {
     gpio: PortNum,
     mask: u16,
     regs: &'static PortReg,
     _mode: PhantomData<MODE>,
-}
-
-impl super::BidirectionPin for Port<()> {
-    fn mode_ctrl(&self, mode: BidirectionPinMode) {
-        self.port_init(mode.to_flag());
-    }
-    
-    fn set(&self, level: bool) {
-        let mut port = self.as_output();
-        if level {
-            port.set_bits(self.mask);
-        } else {
-            port.clr_bits(self.mask);
-        }
-    }
-    
-    fn get(&self) -> bool {
-        let mut port = self.as_input();
-        port.read_input_bits() > 0
-    }
 }
 
 impl Port<()> {
@@ -115,18 +96,6 @@ impl Port<()> {
         }
     }
 
-    /// Just converts the port as input mode.
-    /// # Returns
-    /// A new `Port` instance configured as an input port.
-    fn as_input(&self) -> Port<InputPort> {
-        Port {
-            gpio: self.gpio,
-            mask: self.mask,
-            regs: self.regs,
-            _mode: PhantomData,
-        }
-    }
-
     /// Converts the port to an output mode.
     ///
     /// # Arguments
@@ -138,18 +107,6 @@ impl Port<()> {
         let pin_mode = mode.to_flag();
         self.port_init(pin_mode);
 
-        Port {
-            gpio: self.gpio,
-            mask: self.mask,
-            regs: self.regs,
-            _mode: PhantomData,
-        }
-    }
-
-    /// Just converts the port as output mode.
-    /// # Returns
-    /// A new `Port` instance configured as an output port.
-    fn as_output(&self) -> Port<OutputPort> {
         Port {
             gpio: self.gpio,
             mask: self.mask,
@@ -245,6 +202,14 @@ impl Port<OutputPort> {
             }
         }
     }
+    
+    /// Reads the current value of the input register, applying the bit mask.
+    pub fn read_input_bits(&mut self) -> u16 {
+        if !self.regs.idr.is_null() {
+            return unsafe { core::ptr::read_volatile(self.regs.idr) } & self.mask;
+        }
+        return 0;
+    }
 }
 
 impl Port<InputPort> {
@@ -297,6 +262,18 @@ impl embedded_hal::digital::StatefulOutputPin for Port<OutputPort> {
 }
 
 impl embedded_hal::digital::InputPin for Port<InputPort> {
+    #[inline(always)]
+    fn is_high(&mut self) -> Result<bool, Self::Error> {
+        Ok(self.read_input_bits() > 0)
+    }
+
+    #[inline(always)]
+    fn is_low(&mut self) -> Result<bool, Self::Error> {
+        Ok(self.read_input_bits() == 0)
+    }
+}
+
+impl embedded_hal::digital::InputPin for Port<OutputPort> {
     #[inline(always)]
     fn is_high(&mut self) -> Result<bool, Self::Error> {
         Ok(self.read_input_bits() > 0)

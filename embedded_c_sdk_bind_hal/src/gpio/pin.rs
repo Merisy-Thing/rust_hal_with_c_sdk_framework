@@ -1,4 +1,4 @@
-use super::{BidirectionPinMode, ToGpioInitFlag};
+use super::ToGpioInitFlag;
 use crate::ll_api::{ll_cmd::*, GpioInitFlag, PinNum, PortNum};
 use core::marker::PhantomData;
 
@@ -64,24 +64,11 @@ pub struct Input;
 pub struct Output;
 pub struct Alternate;
 
+#[derive(Clone, Copy, Debug)]
 pub struct Pin<MODE> {
     pub(crate) port: PortNum,
     pub(crate) pin: PinNum,
     _mode: PhantomData<MODE>,
-}
-
-impl super::BidirectionPin for Pin<()> {
-    fn mode_ctrl(&self, mode: BidirectionPinMode) {
-        ll_invoke_inner!(INVOKE_ID_GPIO_INIT, self.port, self.pin, mode.to_flag());
-    }
-    
-    fn set(&self, level: bool) {
-        ll_invoke_inner!(INVOKE_ID_GPIO_SET, self.port, self.pin, level);
-    }
-    
-    fn get(&self) -> bool {
-        ll_invoke_inner!(INVOKE_ID_GPIO_GET_INPUT, self.port, self.pin) > 0
-    }
 }
 
 impl Pin<()> {
@@ -184,6 +171,14 @@ impl Pin<Output> {
     fn is_set_high(&mut self) -> bool {
         ll_invoke_inner!(INVOKE_ID_GPIO_GET_OUTPUT, self.port, self.pin) > 0
     }
+    
+    /// Reads the current state of the pin.
+    ///
+    /// # Returns
+    /// `true` if the pin reads high, `false` otherwise.
+    pub(crate) fn is_high(&mut self) -> bool {
+        ll_invoke_inner!(INVOKE_ID_GPIO_GET_INPUT, self.port, self.pin) > 0
+    }
 }
 
 impl Pin<Input> {
@@ -237,6 +232,18 @@ impl embedded_hal::digital::StatefulOutputPin for Pin<Output> {
 }
 
 impl embedded_hal::digital::InputPin for Pin<Input> {
+    #[inline(always)]
+    fn is_high(&mut self) -> Result<bool, Self::Error> {
+        Ok(Self::is_high(self))
+    }
+
+    #[inline(always)]
+    fn is_low(&mut self) -> Result<bool, Self::Error> {
+        Ok(!Self::is_high(self))
+    }
+}
+
+impl embedded_hal::digital::InputPin for Pin<Output> {
     #[inline(always)]
     fn is_high(&mut self) -> Result<bool, Self::Error> {
         Ok(Self::is_high(self))
