@@ -25,12 +25,6 @@ pub enum SoftI2CAddr {
 }
 
 /// A software implementation of the I2C interface.
-///
-/// let scl = /* Initialize SCL pin as open drain mode*/;
-/// let sda = /* Initialize SDA pin as open drain mode*/;
-/// let delay = Delay::new(); /*Delay need impl DelayNs trait*/
-/// let i2c = SoftI2C::new(scl, sda, delay);
-/// ```
 #[derive(Debug)]
 pub struct SoftI2C<'a, C, D, Delay, const CLK_HZ: u32> {
     /// SCL pin.
