@@ -6,6 +6,7 @@ mod ll_api;
 mod tick_freq_hz;
 
 pub mod adc;
+pub mod dma;
 pub mod gpio;
 pub mod i2c;
 pub mod print;

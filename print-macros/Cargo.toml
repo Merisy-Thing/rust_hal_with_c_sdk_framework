@@ -1,6 +1,6 @@
 [package]
 name = "embedded-c-sdk-bind-print-macros"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Merisy-Thing <merisy-thing@outlook.com>"]
 description = "Embedded C SDK bind print macros"

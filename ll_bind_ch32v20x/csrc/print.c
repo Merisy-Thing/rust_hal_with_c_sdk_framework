@@ -95,7 +95,6 @@ void ll_vprintf(const char *fmt, va_list va)
 			}
             break;
         case 'y':
-        case 'Y':
             ptr = va_arg(va, char *);
             idx = (int32_t)va_arg(va, int32_t);
             str[2] = ' ';

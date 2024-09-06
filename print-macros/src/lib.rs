@@ -110,9 +110,9 @@ fn write(input: TokenStream, newline: bool) -> TokenStream {
                     let mut lable = "";
                     match arg {
                         Expr::Array(_) => {
-                            lable = "%Y";
+                            lable = "%y";
                             exprs.push(
-                                quote!(  #arg.as_ptr() as *const _ as InvokeParam, #arg.len() ),
+                                quote!(  #arg.as_ptr() as *const _ as InvokeParam, (#arg.len() * core::mem::size_of_val(&#arg[0])) ),
                             );
                             ok = true;
                         }
@@ -128,15 +128,15 @@ fn write(input: TokenStream, newline: bool) -> TokenStream {
                                     Err(msg) => err_msg = msg.to_string(),
                                 },
                                 Expr::Array(_) => {
-                                    lable = "%Y";
-                                    exprs.push(quote!(  #arg.as_ptr() as *const _ as InvokeParam, #arg.len() ));
+                                    lable = "%y";
+                                    exprs.push(quote!(  #arg.as_ptr() as *const _ as InvokeParam, (#arg.len() * core::mem::size_of_val(&#arg[0])) ));
                                     ok = true;
                                 }
                                 Expr::Path(path_expr) => {
                                     let first = path_expr.path.segments.first();
                                     if let Some(segment) = first {
-                                        lable = "%Y";
-                                        exprs.push(quote!( #segment.as_ptr() as *const _ as InvokeParam, #segment.len() ));
+                                        lable = "%y";
+                                        exprs.push(quote!( #segment.as_ptr() as *const _ as InvokeParam, (#segment.len() * core::mem::size_of_val(&#segment[0])) ));
                                         ok = true;
                                     } else {
                                         err_msg = "Path has no segments".to_string();
@@ -408,7 +408,7 @@ fn parse_c_format(literal: &str, span: Span) -> parse::Result<Vec<Piece>> {
                 _ => {
                     return Err(parse::Error::new(
                         span,
-                        "invalid format string: expected `%d`, `%c`, `%s/S`, `%x/X` or `%y/Y`",
+                        "invalid format string: expected `%d`, `%c`, `%s/S`, `%x/X` or `%y`",
                     ));
                 }
             }

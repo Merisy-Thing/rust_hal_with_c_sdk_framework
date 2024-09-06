@@ -31,7 +31,7 @@
  - **print-log-csdk** = ["print-log"]： print!,println!调用csdk的格式化函数输出日志，可节约2~6KB
 
 ### print-log-csdk 打印输出限制
- - 增加%S和%y/Y输出带长度参数的字节串和数组，参考  **_ll_bind_ch32v20x\csrc\print.c_**
+ - 增加%S和%y输出带长度参数的字节串和数组，参考  **_ll_bind_ch32v20x\csrc\print.c_**
  - 不支持填充
 
 ### 架构

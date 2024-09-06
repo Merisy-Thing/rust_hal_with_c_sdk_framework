@@ -171,7 +171,7 @@ impl Pin<Output> {
     fn is_set_high(&mut self) -> bool {
         ll_invoke_inner!(INVOKE_ID_GPIO_GET_OUTPUT, self.port, self.pin) > 0
     }
-    
+
     /// Reads the current state of the pin.
     ///
     /// # Returns

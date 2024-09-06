@@ -1,6 +1,6 @@
+pub use crate::ll_api::I2CBusId;
 use crate::ll_api::{ll_cmd::*, I2CBusAddrBits};
 use embedded_hal::i2c::{NoAcknowledgeSource, SevenBitAddress, TenBitAddress};
-pub use crate::ll_api::I2CBusId;
 
 pub const FREQ_I2C_SCL_100K: u32 = 100_000;
 pub const FREQ_I2C_SCL_400K: u32 = 400_000;
@@ -29,11 +29,7 @@ pub struct I2C<const CLK_HZ: u32> {
 impl<const CLK_HZ: u32> I2C<CLK_HZ> {
     /// Creates a new `I2C` instance.
     pub fn new(bus: I2CBusId, flags: Option<u32>) -> Self {
-        let flag_param = if let Some(flags) = flags {
-            flags
-        } else {
-            0
-        };
+        let flag_param = if let Some(flags) = flags { flags } else { 0 };
 
         ll_invoke_inner!(INVOKE_ID_I2C_INIT, bus, CLK_HZ, flag_param);
 

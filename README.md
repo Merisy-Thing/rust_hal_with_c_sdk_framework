@@ -31,7 +31,7 @@ This is a Rust HAL  framework to be bound to the MCU C SDK/BSP.
  - **print-log-csdk** = ["print-log"]： print!, println! use formatting function from CSDK to output logs, Save 2-6KB 
 
 ### print-log-csdk print log limits
- - Add %S and %y/Y lable to format strings and arrays with length parameters, refer to **_ll_bind_ch32v20x\csrc\print.c_**
+ - Add %S and %y lable to format strings and arrays with length parameters, refer to **_ll_bind_ch32v20x\csrc\print.c_**
  - Not support padding
 
 ### Architecture

@@ -146,6 +146,46 @@ enum {
     I2C_TEN_BIT_ADDR = 1,
 };
 
+enum {
+    DMA_CH0,
+    DMA_CH1,
+    DMA_CH2,
+    DMA_CH3,
+    DMA_CH4,
+    DMA_CH5,
+    DMA_CH6,
+    DMA_CH7,
+    DMA_CH_MAX,
+
+    DMA_CTRL_START = 0,
+    DMA_CTRL_STOP = 1,
+    DMA_CTRL_WAIT = 2,
+
+    DMA_FLAG_SRC_BYTE      = 0x01 << 0,
+    DMA_FLAG_SRC_HALFWORD  = 0x02 << 0,
+    DMA_FLAG_SRC_WORD      = 0x03 << 0,
+    DMA_FLAG_SRC_MASK      = 0x03 << 0,
+
+    DMA_FLAG_DST_BYTE      = 0x01 << 2,
+    DMA_FLAG_DST_HALFWORD  = 0x02 << 2,
+    DMA_FLAG_DST_WORD      = 0x03 << 2,
+    DMA_FLAG_DST_MASK      = 0x03 << 2,
+
+    DMA_FLAG_MEM_TO_MEM    = 0x01 << 4,
+    DMA_FLAG_PERIPH_TO_MEM = 0x02 << 4,
+    DMA_FLAG_MEM_TO_PERIPH = 0x03 << 4,
+    DMA_FLAG_X_TO_X_MASK   = 0x03 << 4,
+
+	DMA_FLAG_NONE_INC      = 0x00 << 6,
+    DMA_FLAG_SRC_INC       = 0x01 << 6,
+    DMA_FLAG_DST_INC       = 0x02 << 6,
+    DMA_FLAG_BOTH_INC      = 0x03 << 6,
+    DMA_FLAG_INC_MASK      = 0x03 << 6,
+
+    DMA_FLAG_CIRCULAR_OFF  = 0x00 << 8,
+    DMA_FLAG_CIRCULAR_ON   = 0x01 << 8,
+};
+
 enum INVOKE {
 	ID_SYSTEM_INIT = 100,
 	ID_SYSTEM_RESET = 101,
@@ -183,6 +223,10 @@ enum INVOKE {
     ID_I2C_READ,
     ID_I2C_WRITE,
     ID_I2C_WRITE_READ,
+
+    ID_DMA_INIT = 900,
+    ID_DMA_DEINIT,
+    ID_DMA_CTRL,
 };
 
 int ll_invoke(enum INVOKE invoke_id, ...);

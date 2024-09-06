@@ -61,8 +61,8 @@ fn main() -> ! {
         println!("C %d %d %d %d", 111, 112, true, false);
         println!("C %d %d", 333, test_bool);
         println!("C %d %s %s", 222, "bbbb", &test_str);
-        println!("C %d %Y", 4442, &test_array);
-        println!("C %Y", &test_array);
+        println!("C %d %y", 4442, &test_array);
+        println!("C %y", &test_array);
         println!("C 0x%x 0x%X 0x%x", test_hex_0, test_hex_1, test_hex_2);
         println!("C %d %d %d %d\n", 555, test_int, test_int, test_zero);
         print!("R %d %d ", 11, 0x10);

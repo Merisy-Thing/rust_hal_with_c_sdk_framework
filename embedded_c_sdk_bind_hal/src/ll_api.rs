@@ -236,6 +236,54 @@ pub enum I2CBusAddrBits {
     TenBitAddr = 1,
 }
 
+//DMA
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[repr(u8)]
+pub enum DmaChannel {
+    CH0,
+    CH1,
+    CH2,
+    CH3,
+    CH4,
+    CH5,
+    CH6,
+    CH7,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u32)]
+pub(crate) enum DmaCtrl {
+    Start = 0,
+    Stop = 1,
+    Wait = 2,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u32)]
+pub(crate) enum DmaFlags {
+    None = 0,
+
+    SrcByte = 1 << 0,
+    SrcHalfWord = 2 << 0,
+    SrcWord = 3 << 0,
+
+    DstByte = 1 << 2,
+    DstHalfWord = 2 << 2,
+    DstWord = 3 << 2,
+
+    MemToMem = 1 << 4,
+    PeriphToMem = 2 << 4,
+    MemToPeriph = 3 << 4,
+
+    //NoneInc = 0 << 6,
+    SrcInc = 1 << 6,
+    DstInc = 2 << 6,
+    BothInc = 3 << 6,
+
+    //CircularOff = 0 << 8,
+    CircularOn = 1 << 8,
+}
+
 pub mod ll_cmd {
     //INVOKE
     pub type InvokeParam = ::core::ffi::c_uint;
@@ -274,6 +322,10 @@ pub mod ll_cmd {
     pub const INVOKE_ID_I2C_WRITE: InvokeParam = 803;
     pub const INVOKE_ID_I2C_WRITE_READ: InvokeParam = 804;
     pub const INVOKE_ID_I2C_CUSTOM_BASE: InvokeParam = 850;
+    pub const INVOKE_ID_DMA_INIT: InvokeParam = 900;
+    pub const INVOKE_ID_DMA_DEINIT: InvokeParam = 901;
+    pub const INVOKE_ID_DMA_CTRL: InvokeParam = 902;
+
     //For user custom
     pub const INVOKE_ID_DEV_CUSTOM_BASE: InvokeParam = 10_000;
 

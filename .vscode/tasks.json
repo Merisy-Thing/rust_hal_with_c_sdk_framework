@@ -160,6 +160,7 @@
             "type": "pickString",
             "description": "What example do you want to process?",
             "options": [
+                "dma",
                 "bmp180_api",
                 "bmp180",
                 "fast_pin",
@@ -175,7 +176,7 @@
                 "usart",
                 "bare_metal",
             ],
-            "default": "bmp180_api"
+            "default": "dma"
         }
     ]
 }

@@ -215,7 +215,9 @@ impl<R: FastPinReg, N: FastPinNum> embedded_hal::digital::InputPin for FastPin<R
     }
 }
 
-impl<R: FastPinReg, N: FastPinNum> embedded_hal::digital::InputPin for FastPin<R, N, OutputFastPin> {
+impl<R: FastPinReg, N: FastPinNum> embedded_hal::digital::InputPin
+    for FastPin<R, N, OutputFastPin>
+{
     #[inline(always)]
     fn is_high(&mut self) -> Result<bool, Self::Error> {
         Ok(self.is_input_high())

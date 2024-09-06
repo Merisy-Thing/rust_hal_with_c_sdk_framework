@@ -14,6 +14,7 @@
 #include "usart.h"
 #include "adc.h"
 #include "print.h"
+#include "dma.h"
 
 static uint32_t SYS_TICK_1MS_CNT = 0;
 
@@ -53,6 +54,7 @@ static void hw_config(void)
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2 | RCC_APB1Periph_USART3, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE );
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
     RCC_ADCCLKConfig(RCC_PCLK2_Div8);
 
 	SysTick_Config();
@@ -341,6 +343,31 @@ int ll_invoke(enum INVOKE invoke_id, ...)
 		uint32_t rd_size = va_arg(args, uint32_t);
 
 		result = i2c_write_read(bus_id, addr_bits, dev_addr, p_write, wr_size, p_read, rd_size);
+	}
+	break;
+	case ID_DMA_INIT:
+	{
+		uint32_t dma_ch        = va_arg(args, uint32_t);
+		uint32_t src_addr      = va_arg(args, uint32_t);
+		uint32_t src_buff_size = va_arg(args, uint32_t);
+		uint32_t dst_addr      = va_arg(args, uint32_t);
+		uint32_t dst_buff_size = va_arg(args, uint32_t);
+		uint32_t flags         = va_arg(args, uint32_t);
+		uint32_t extra_flags   = va_arg(args, uint32_t);
+		result = dma_init(dma_ch, src_addr, src_buff_size, dst_addr, dst_buff_size, flags, extra_flags);
+	}
+	break;
+	case ID_DMA_DEINIT:
+	{
+		//TODO
+	}
+	break;
+	case ID_DMA_CTRL:
+	{
+		uint32_t dma_ch = va_arg(args, uint32_t);
+		uint32_t work   = va_arg(args, uint32_t);
+
+		result = dma_ctrl(dma_ch, work);
 	}
 	break;
 	default:

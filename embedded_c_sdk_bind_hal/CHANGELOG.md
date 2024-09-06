@@ -1,6 +1,12 @@
 # Changelog
 
+## 0.7.0 - 2024-09-02
+
+ - add dma mod and example
+ - reserve %Y format flag
+
 ## 0.6.0 - 2024-09-02
+
  - add i2c mod and ll_api define
  - impl embedded_hal InputPin trait for OutputPin
  - separate soft-i2c to stand-alone crate

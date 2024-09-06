@@ -202,7 +202,7 @@ impl Port<OutputPort> {
             }
         }
     }
-    
+
     /// Reads the current value of the input register, applying the bit mask.
     pub fn read_input_bits(&mut self) -> u16 {
         if !self.regs.idr.is_null() {
