@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.0 - 2024-09-02
+## 0.7.0 - 2024-09-06
 
  - add dma mod and example
  - reserve %Y format flag
