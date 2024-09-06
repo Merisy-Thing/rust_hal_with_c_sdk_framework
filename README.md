@@ -34,6 +34,8 @@ Ownership restrictions friendly, almost all types can be Copy/Clone.
  - Add %S and %y lable to format strings and arrays with length parameters, refer to **_ll_bind_ch32v20x\csrc\print.c_**
  - Not support padding
 
+### [CHANGELOG](embedded_c_sdk_bind_hal/CHANGELOG.md)
+
 ### Architecture
 ---
 ![输入图片说明](doc/framework.png)
