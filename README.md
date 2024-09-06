@@ -1,13 +1,11 @@
 # Rust HAL with C SDK Framework
 
 ## Introduction
----
 This is a Rust HAL  framework to be bound to the MCU C SDK/BSP.
 
 Ownership restrictions friendly, almost all types can be Copy/Clone.
 
 ## Description
----
 ### Startup and runtime
  - Use cortexm-rt or riscv-rt directly, referring to the implementation of **_ll_bind_hk32F0301mxxc_**
  - Use the SDK/BSP startup_XXX.S, refer to the implementation of **_ll_bind_ch32v20x_**
