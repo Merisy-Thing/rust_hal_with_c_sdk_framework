@@ -5,7 +5,7 @@
  - add default "tick-based-msdelay" feature
  - fix hk32 ADC enum define
 
-## 0.7.0 - 2024-09-02
+## 0.7.0 - 2024-09-06
 
  - add dma mod and example
  - reserve %Y format flag
