@@ -187,6 +187,7 @@ impl DelayNs for Delay {
     /// let mut delay = Delay::new();
     /// delay.delay_ms(500); // Delay for 500 milliseconds.
     /// ```
+    #[cfg(feature = "tick-based-msdelay")]
     #[inline]
     fn delay_ms(&mut self, ms: u32) {
         let ms_tick = TimerDurationU32::<TICK_FREQ_HZ>::millis(ms).ticks();

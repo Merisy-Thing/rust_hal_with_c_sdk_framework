@@ -1,6 +1,6 @@
 [package]
 name = "embedded-c-sdk-bind-hal"
-version = "0.7.0"
+version = "0.7.1"
 edition = "2021"
 authors = ["Merisy-Thing <merisy-thing@outlook.com>"]
 description = "Embedded C SDK bind HAL"
@@ -39,13 +39,14 @@ features = [
 version = "0.1.2"
 
 [features]
-default = []
+default = [ "tick-based-msdelay" ]
 print-log = []
 print-log-csdk = ["print-log"]
 
 # enable this feature to use the tick-based time driver as embassy_time_driver
 tick-size-64bit = []
 embassy = []
+tick-based-msdelay = []
 
 USART-0 = ["_usart_impl"]
 USART-1 = ["_usart_impl"]

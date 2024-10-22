@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1 - 2024-10-22
+
+ - add default "tick-based-msdelay" feature
+ - fix hk32 ADC enum define
+
 ## 0.7.0 - 2024-09-02
 
  - add dma mod and example

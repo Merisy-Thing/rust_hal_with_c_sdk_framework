@@ -118,7 +118,7 @@ enum {
     PWM_CTRL_ACTIVE_LOW  = 11,
 };
 
-enum ADC {
+enum {
     ADC_CH0,
     ADC_CH1,
     ADC_CH2,
