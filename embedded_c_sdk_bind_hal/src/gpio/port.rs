@@ -46,6 +46,9 @@ pub struct PortReg {
     pub bcr: *mut u16,
 }
 
+unsafe impl Send for PortReg {}
+unsafe impl Sync for PortReg {}
+
 pub struct InputPort;
 pub struct OutputPort;
 

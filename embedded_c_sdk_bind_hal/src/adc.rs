@@ -65,9 +65,9 @@ impl Adc {
     pub fn multiple_convert(&self, buf: &mut [AdcDataType]) -> bool {
         let result = ll_invoke_inner!(
             INVOKE_ID_ADC_CTRL,
-            AdcCtrl::Convert,
             self.ch,
-            buf.as_ptr(),
+            AdcCtrl::Convert,
+            buf.as_mut_ptr(),
             buf.len()
         );
         result >= 0

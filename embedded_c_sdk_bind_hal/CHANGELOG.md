@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.2 - 2024-12-22
+
+ - bump dependencie version
+ - impl Send/Sync for PortReg
+ - fix ADC multiple_convert()
+ - fix fast_pin_num macro
+
 ## 0.7.1 - 2024-10-22
 
  - add default "tick-based-msdelay" feature
