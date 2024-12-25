@@ -14,35 +14,45 @@ static SYS_TICK_0: AtomicU32 = AtomicU32::new(0);
 #[cfg(feature = "tick-size-64bit")]
 static SYS_TICK_1: AtomicU32 = AtomicU32::new(0);
 
+pub trait HalTickHandler {
+    unsafe fn on_sys_tick_interrupt();
+}
+
+impl HalTickHandler for Tick {
+    /// This function is called by a hardware interrupt to update the system's tick count.
+    /// Depending on the build features, it supports either 32-bit or 64-bit tick counters.
+    ///
+    #[inline]
+    unsafe fn on_sys_tick_interrupt() {
+        // Increment the low-order 32-bit tick counter atomically.
+        #[cfg(any(feature = "tick-size-64bit", feature = "embassy"))]
+        let sys_tick = SYS_TICK_0.fetch_add(1, Ordering::Relaxed);
+
+        // Increment the low-order 32-bit tick counter using a method compatible with non-64bit environments.
+        #[cfg(not(any(feature = "tick-size-64bit", feature = "embassy")))]
+        SYS_TICK_0.add(1, Ordering::Relaxed);
+
+        // Handle 64-bit tick overflow and update the high-order 32-bit tick counter.
+        #[cfg(feature = "tick-size-64bit")]
+        let sys_tick = if sys_tick == u32::MAX {
+            let tick_1 = SYS_TICK_1.fetch_add(1, Ordering::Release);
+            ((tick_1 as u64) << 32) | (sys_tick as u64)
+        } else {
+            let tick_1 = SYS_TICK_1.load(Ordering::Relaxed);
+            ((tick_1 as u64) << 32) | (sys_tick as u64)
+        };
+
+        // If the 'embassy' feature is enabled, check for any alarms that need to be triggered.
+        #[cfg(feature = "embassy")]
+        tick_time_driver::check_alarm(sys_tick);
+    }
+}
+
 #[no_mangle]
 #[inline]
-/// An unsafe external C function that increments the system tick counter.
-///
-/// This function is called by a hardware interrupt to update the system's tick count.
-/// Depending on the build features, it supports either 32-bit or 64-bit tick counters.
-///
+#[deprecated( since = "0.7.3", note = "Please use `sys_tick_handler!()` instead")]
 unsafe extern "C" fn sys_tick_inc() {
-    // Increment the low-order 32-bit tick counter atomically.
-    #[cfg(any(feature = "tick-size-64bit", feature = "embassy"))]
-    let sys_tick = SYS_TICK_0.fetch_add(1, Ordering::Relaxed);
-
-    // Increment the low-order 32-bit tick counter using a method compatible with non-64bit environments.
-    #[cfg(not(any(feature = "tick-size-64bit", feature = "embassy")))]
-    SYS_TICK_0.add(1, Ordering::Relaxed);
-
-    // Handle 64-bit tick overflow and update the high-order 32-bit tick counter.
-    #[cfg(feature = "tick-size-64bit")]
-    let sys_tick = if sys_tick == u32::MAX {
-        let tick_1 = SYS_TICK_1.fetch_add(1, Ordering::Release);
-        ((tick_1 as u64) << 32) | (sys_tick as u64)
-    } else {
-        let tick_1 = SYS_TICK_1.load(Ordering::Relaxed);
-        ((tick_1 as u64) << 32) | (sys_tick as u64)
-    };
-
-    // If the 'embassy' feature is enabled, check for any alarms that need to be triggered.
-    #[cfg(feature = "embassy")]
-    tick_time_driver::check_alarm(sys_tick);
+    Tick::on_sys_tick_interrupt();
 }
 
 /// Represents a point in time as measured by the system tick counter.

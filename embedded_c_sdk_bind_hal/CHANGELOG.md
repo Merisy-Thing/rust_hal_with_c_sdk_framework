@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.3 - 2024-12-25
+
+ - optimize system tick handler interface, macro: sys_tick_handler!()
+
 ## 0.7.2 - 2024-12-22
 
  - bump dependencie version

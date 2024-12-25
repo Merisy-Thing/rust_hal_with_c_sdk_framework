@@ -15,7 +15,7 @@ use embedded_c_sdk_bind_hal::{
 
 use embedded_graphics::{
     mono_font::{ascii::FONT_8X13, MonoTextStyle},
-    pixelcolor::Bgr565,
+    pixelcolor::Rgb565,
     prelude::*,
     primitives::{Arc, PrimitiveStyle},
     text::{Alignment, Text},
@@ -49,23 +49,23 @@ fn main() -> ! {
     disp.set_orientation(&Orientation::PortraitSwapped).unwrap();
 
     disp.set_offset(LCD_OFFSET_X, LCD_OFFSET_Y);
-    disp.clear(Bgr565::BLACK).unwrap();
+    disp.clear(Rgb565::BLACK).unwrap();
 
     //let yoffset = 10;
 
-    // let fill = PrimitiveStyle::with_fill(Bgr565::RED);
+    // let fill = PrimitiveStyle::with_fill(Bgr5Rgb56565::RED);
     // // Draw a filled square
     // Rectangle::new(Point::new(1, 1), Size::new(64, 32))
     //     .into_styled(fill)
     //     .draw(&mut disp).unwrap();
 
-    // let thick_stroke = PrimitiveStyle::with_stroke(Bgr565::GREEN, 2);
+    // let thick_stroke = PrimitiveStyle::with_stroke(Rgb565::GREEN, 2);
     // // Draw a circle with a 3px wide stroke.
     // Circle::new(Point::new(72, yoffset), 17)
     //     .into_styled(thick_stroke)
     //     .draw(&mut disp).unwrap();
 
-    let character_style = MonoTextStyle::new(&FONT_8X13, Bgr565::WHITE);
+    let character_style = MonoTextStyle::new(&FONT_8X13, Rgb565::WHITE);
     let text = "Hello\nWorld";
     Text::with_alignment(
         text,
@@ -79,7 +79,7 @@ fn main() -> ! {
     const ANGLE_SWEEP: f32 = 10.0;
     const ANGLE_STEP: f32 = 10.0;
 
-    let short_arc_style = PrimitiveStyle::with_stroke(Bgr565::RED, 4);
+    let short_arc_style = PrimitiveStyle::with_stroke(Rgb565::RED, 4);
     let mut short_arc = Arc::new(
         Point::new(36, 4),
         56,
@@ -87,7 +87,7 @@ fn main() -> ! {
         Angle::from_degrees(ANGLE_SWEEP),
     );
 
-    let long_arc_style = PrimitiveStyle::with_stroke(Bgr565::GREEN, 4);
+    let long_arc_style = PrimitiveStyle::with_stroke(Rgb565::GREEN, 4);
     let mut long_arc = Arc::new(
         Point::new(36, 4),
         56,

@@ -18,7 +18,8 @@ Ownership restrictions friendly, almost all types can be Copy/Clone.
  - EXTI: **fn EXTI_IRQ_hook_rs(line: u8)**, refer to **_[ll_bind_hk32F0301mxxc/csrc/interrupt.c](ll_bind_hk32F0301mxxc/csrc/interrupt.c)_** 
  - ADC: **fn ADC_CH{ch}_EOC_hook_rs(val:AdcDataType)**, refer to **_[ll_bind_ch32v20x/csrc/adc.c](ll_bind_ch32v20x/csrc/adc.c)_** 
  - USART: **fn USART{id}_rx_hook_rs(val: u8)**, refer to **_[ll_bind_ch32v20x/csrc/usart.c](ll_bind_ch32v20x/csrc/usart.c)_** 
- - Tick: **fn sys_tick_inc()**, reference **_[ll_bind_ch32v20x/csrc/ll_api.c](ll_bind_ch32v20x/csrc/ll_api.c)_** and **_[example_hk32/src/interrupt.rs](example_hk32/src/interrupt.rs)_**  
+ - Tick(Rust): **sys_tick_handler!()**, reference **_[example_hk32/src/interrupt.rs](example_hk32/src/interrupt.rs)_**
+ - Tick(C): **fn sys_tick_inc()**, reference **_[ll_bind_ch32v20x/csrc/ll_api.c](ll_bind_ch32v20x/csrc/ll_api.c)_**
 
 ### Features
  - **print-log** = []: print!,println! print logs via serial port

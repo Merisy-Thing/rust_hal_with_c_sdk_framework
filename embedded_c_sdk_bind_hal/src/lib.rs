@@ -30,6 +30,13 @@ macro_rules! ll_invoke {
     };
 }
 
+#[macro_export]
+macro_rules! sys_tick_handler {
+    () => {
+        <$crate::tick::Tick as $crate::tick::HalTickHandler>::on_sys_tick_interrupt();
+    };
+}
+
 /// Macro for setting up a periodic interval to execute a function.
 ///
 /// # Syntax

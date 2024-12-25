@@ -1,9 +1,5 @@
-extern "C" {
-    pub fn sys_tick_inc();
-}
-
 #[allow(non_snake_case)]
 #[no_mangle]
 unsafe extern "C" fn SysTick() {
-    sys_tick_inc();
+    embedded_c_sdk_bind_hal::sys_tick_handler!();
 }

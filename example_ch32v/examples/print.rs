@@ -48,7 +48,7 @@ fn main() -> ! {
         println!("\r\nR count = {} {}", count, count);
         println!("R {} {} {} {}", 111, 112, true, false);
         println!("R {} {}", 333, test_bool);
-        println!("R {} {} {}", 222, "bbbb", &test_str);
+        println!("R {} {} {:?}", 222, "bbbb", test_str);
         println!("R {} {}", 4442, &test_array);
         println!("R {:?}", &test_array);
         println!("R 0x{:x} 0x{:x} 0x{:x}", test_hex_0, test_hex_1, test_hex_2);
