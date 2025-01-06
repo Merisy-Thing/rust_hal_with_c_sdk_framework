@@ -175,8 +175,9 @@
                 "adc-buffered",
                 "usart",
                 "bare_metal",
+                "tick_timer",
             ],
-            "default": "dma"
+            "default": "tick_timer"
         }
     ]
 }

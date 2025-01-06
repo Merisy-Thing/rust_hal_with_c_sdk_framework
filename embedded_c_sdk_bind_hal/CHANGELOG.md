@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0 - 2025-1-6
+
+ - update dep: embassy-time-driver to 0.2.0
+
 ## 0.7.3 - 2024-12-25
 
  - optimize system tick handler interface, macro: sys_tick_handler!()

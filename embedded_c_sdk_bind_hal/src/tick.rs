@@ -50,7 +50,7 @@ impl HalTickHandler for Tick {
 
 #[no_mangle]
 #[inline]
-#[deprecated( since = "0.7.3", note = "Please use `sys_tick_handler!()` instead")]
+#[deprecated(since = "0.7.3", note = "Please use `sys_tick_handler!()` instead")]
 unsafe extern "C" fn sys_tick_inc() {
     Tick::on_sys_tick_interrupt();
 }
@@ -215,30 +215,27 @@ impl DelayNs for Delay {
 
 #[cfg(feature = "embassy")]
 mod tick_time_driver {
-    use core::cell::Cell;
-    use critical_section::Mutex;
-    use embassy_time_driver::{AlarmHandle, Driver};
-    use portable_atomic::{AtomicBool, Ordering};
+    use core::cell::{Cell, RefCell};
+    use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+    use embassy_sync::blocking_mutex::Mutex;
+    use embassy_time_driver::Driver;
+    use embassy_time_queue_utils::Queue;
 
     struct AlarmState {
         timestamp: Cell<super::TickType>,
-        callback: Cell<Option<(fn(*mut ()), *mut ())>>,
     }
     unsafe impl Send for AlarmState {}
 
-    const DUMMY_ALARM: AlarmState = AlarmState {
-        timestamp: Cell::new(0),
-        callback: Cell::new(None),
-    };
-
     struct TimerDriver {
-        alarms: Mutex<AlarmState>,
-        allocated: AtomicBool,
+        alarms: Mutex<CriticalSectionRawMutex, AlarmState>,
+        queue: Mutex<CriticalSectionRawMutex, RefCell<Queue>>,
     }
 
     embassy_time_driver::time_driver_impl!(static DRIVER: TimerDriver = TimerDriver{
-        alarms:  Mutex::new(DUMMY_ALARM),
-        allocated: AtomicBool::new(false),
+        alarms:  Mutex::const_new(CriticalSectionRawMutex::new(), AlarmState {
+            timestamp: Cell::new(0),
+        }),
+        queue: Mutex::new(RefCell::new(Queue::new()))
     });
 
     #[inline(always)]
@@ -253,20 +250,12 @@ mod tick_time_driver {
         /// set to go off at the current tick. If an alarm is due, it resets the alarm timestamp and invokes the callback.
         fn check_alarm(&self, curr_tick: super::TickType) {
             critical_section::with(|cs| {
-                let allocated = self.allocated.load(Ordering::Relaxed);
-                if !allocated {
-                    return;
-                }
                 let alarm = &self.alarms.borrow(cs);
-
-                let timestamp = alarm.timestamp.get();
-
-                if timestamp <= curr_tick {
-                    alarm.timestamp.set(super::TickType::MAX);
-
-                    if let Some((f, ctx)) = alarm.callback.get() {
-                        f(ctx);
-                    }
+                let mut timestamp = alarm.timestamp.get();
+                while timestamp <= curr_tick {
+                    let mut queue = self.queue.borrow(cs).borrow_mut();
+                    timestamp = queue.next_expiration(curr_tick as u64) as super::TickType; //get next timestamp
+                    alarm.timestamp.set(timestamp); //set next alarm
                 }
             });
         }
@@ -277,45 +266,20 @@ mod tick_time_driver {
             super::Tick::now().0 as u64
         }
 
-        /// Allocates an alarm resource.
-        ///
-        /// This function checks if an alarm is already allocated. If not, it allocates one and returns an `AlarmHandle`.
-        /// Note: This function is marked as unsafe because it may lead to undefined behavior if called incorrectly.
-        unsafe fn allocate_alarm(&self) -> Option<AlarmHandle> {
-            let allocated = self.allocated.load(Ordering::Relaxed);
-            if allocated {
-                return None;
-            }
-
-            self.allocated.store(true, Ordering::Relaxed);
-            Some(AlarmHandle::new(0))
-        }
-
-        /// Sets the callback for an alarm.
-        ///
-        /// This function sets the callback function and context for a given alarm handle.
-        fn set_alarm_callback(&self, _alarm: AlarmHandle, callback: fn(*mut ()), ctx: *mut ()) {
+        fn schedule_wake(&self, at: u64, waker: &core::task::Waker) {
             critical_section::with(|cs| {
-                let alarm = &self.alarms.borrow(cs);
-                alarm.callback.set(Some((callback, ctx)));
-            })
-        }
+                let mut queue = self.queue.borrow(cs).borrow_mut();
 
-        /// Sets an alarm to trigger at a specific timestamp.
-        ///
-        /// This function sets the alarm to trigger at the provided timestamp. It returns `true` if the alarm was set,
-        /// and `false` if the timestamp is in the past.
-        fn set_alarm(&self, _alarm: AlarmHandle, timestamp: u64) -> bool {
-            critical_section::with(|cs| {
-                let alarm = &self.alarms.borrow(cs);
-
-                let now = self.now();
-                if timestamp <= now {
-                    alarm.timestamp.set(super::TickType::MAX);
-                    false
-                } else {
-                    alarm.timestamp.set(timestamp as super::TickType);
-                    true
+                if queue.schedule_wake(at, waker) {
+                    let alarm = &self.alarms.borrow(cs);
+                    let now = self.now();
+                    loop {
+                        let timestamp = queue.next_expiration(now) as super::TickType; //get next timestamp
+                        alarm.timestamp.set(timestamp); //set next alarm
+                        if timestamp > now as super::TickType {
+                            break;
+                        }
+                    }
                 }
             })
         }

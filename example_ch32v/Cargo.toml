@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-panic-halt = "0.2.0"
-riscv = { version = "0.11.1" }
-riscv-rt-macros = "0.2.0"
+panic-halt = "1.0.0"
+riscv = { version = "0.12.1" }
+riscv-rt-macros = "0.2.2"
 portable-atomic = {version = "1.6.0", features = ["critical-section"] }
 
 embedded-hal = { version = "1.0.0" }
@@ -14,8 +14,8 @@ embedded-hal-nb = "1.0.0"
 embedded-io = "0.6.1"
 embedded-io-async = "0.6.1"
 
-embassy-executor = { version="0.5.0", features=["arch-riscv32", "executor-thread", "integrated-timers", "task-arena-size-1024"] }
-embassy-time = { version="0.3.0", features=["tick-hz-1_000"] }
+embassy-executor = { version="0.7.0", features=["arch-riscv32", "executor-thread", "task-arena-size-1024"] }
+embassy-time = { version="0.4.0", features=["tick-hz-1_000"] }
 embassy-futures = "0.1.1"
 
 ll_bind_ch32v20x = { version = "0.1.0", path = "../ll_bind_ch32v20x" }
@@ -25,7 +25,7 @@ embedded-storage = "0.3.1"
 st7735-lcd = "0.10.0"
 embedded-graphics = { version = "0.8.1", features = ["fixed_point"]}
 bmp180-embedded-hal = { version = "0.1.0", default-features = false, features = ["blocking", "impl-debug"]}
-once_cell = { version = "1.19.0", default-features = false, features = ["portable-atomic"]}
+once_cell = { version = "1.20.2", default-features = false, features = ["portable-atomic"]}
 
 [dependencies.embedded-c-sdk-bind-hal]
 path = "../embedded_c_sdk_bind_hal"
