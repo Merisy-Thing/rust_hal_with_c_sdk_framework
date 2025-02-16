@@ -40,6 +40,9 @@ features = [
 [dependencies.soft-i2c]
 path = "../soft-i2c"
 
+[dependencies.local_static]
+path = "../local-static"
+
 [profile.release]
 strip = false
 lto = true

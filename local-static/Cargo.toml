@@ -1,0 +1,13 @@
+[package]
+name = "local_static"
+version = "0.1.1"
+edition = "2021"
+authors = ["Merisy-Thing <merisy-thing@outlook.com>"]
+description = "Local static variable"
+readme = "README.md"
+keywords = ["embedded", "static", "local", "cell"]
+categories = ["embedded", "no-std"]
+license = "MIT"
+repository = "https://github.com/Merisy-Thing/rust_hal_with_c_sdk_framework/tree/main/local-static"
+
+[dependencies]

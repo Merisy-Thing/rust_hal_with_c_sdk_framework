@@ -15,6 +15,7 @@ use embedded_c_sdk_bind_hal::{
 use embedded_hal::{self, delay::DelayNs, digital::*};
 use ll_bind_ch32v20x as _;
 use panic_halt as _;
+use local_static::LocalStatic;
 
 fn tick_callback<const PERIOD_MS: u64, F>(f: F)
 where
@@ -81,6 +82,15 @@ fn main() -> ! {
 
         setInterval!(call_back_1, 500, 123);
         setInterval!(call_back_2, 500, 123, 456);
+
+        {
+            static TICK: LocalStatic<Tick> = LocalStatic::new();
+
+            if TICK.get().elapsed_time().to_millis() >= 800 {
+                 println!("LocalStatic {}", TICK.get().elapsed_time().to_millis());
+                 TICK.set(Tick::now());
+            }
+        }
     }
 }
 
