@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0 - 2025-8-10
+
+ - update dep: embassy-sync = "0.7.0"
+ - update dep: embassy-time-queue-utils = "0.2.0"
+ - update dep: portable-atomic = "1.11.1"
+
 ## 0.8.0 - 2025-1-6
 
  - update dep: embassy-time-driver to 0.2.0
