@@ -1,27 +1,16 @@
 #![no_main]
 #![no_std]
 
-#[allow(unused_imports)]
-#[rustfmt::skip]
-use embedded_c_sdk_bind_hal::{
-    self, ll_invoke, print, println, setInterval,
-    adc::{self, Adc, AdcBuffered, AdcChannel}, 
-    gpio::{ Pin, PinNum, PinModeOutput, PinModeInput, PinModeAlternate, PortNum, ExtiMode, Port, PortModeOutput, }, 
-    pwm::{Pwm, PwmChannel, PwmPolarity}, 
-    tick::{Tick, Delay},
-    usart::{self, Usart}
-};
+use embedded_c_sdk_bind_hal::{self as CSDK_HAL, print, println, tick::Delay};
 
-use embedded_hal::{self, delay::DelayNs, digital::*};
+use embedded_hal::{self, delay::DelayNs};
 use ll_bind_ch32v20x as _;
 use panic_halt as _;
 
 #[riscv_rt_macros::entry]
 fn main() -> ! {
+    CSDK_HAL::init();
     let mut tick = Delay::new();
-
-    let mut led = Pin::new(PortNum::PA, PinNum::Pin8).into_output(PinModeOutput::OutPP);
-    let mut key = Pin::new(PortNum::PB, PinNum::Pin2).into_input(PinModeInput::InPullUp);
 
     let mut count = 0;
 
@@ -36,14 +25,7 @@ fn main() -> ! {
 
     loop {
         count += 1;
-
-        led.toggle().ok();
-
-        if key.is_low().unwrap() {
-            tick.delay_ms(500);
-        } else {
-            tick.delay_ms(1000);
-        }
+        tick.delay_ms(1000);
 
         println!("\r\nR count = {} {}", count, count);
         println!("R {} {} {} {}", 111, 112, true, false);

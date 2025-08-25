@@ -1,16 +1,13 @@
 #![no_main]
 #![no_std]
 
-#[allow(unused_imports)]
-#[rustfmt::skip]
 use embedded_c_sdk_bind_hal::{
-    self, ll_invoke, print, println,
-    adc::{self, Adc, AdcBuffered, AdcChannel}, 
-    gpio::{ Pin, PinNum, PinModeOutput, PinModeInput, PinModeAlternate, PortNum, ExtiMode, Port, PortModeOutput, }, 
-    pwm::{Pwm, PwmChannel, PwmPolarity}, 
-    tick::{Tick, Delay},
-    usart::{self, Usart}
+    self as CSDK_HAL,
+    adc::{Adc, AdcChannel},
+    println,
+    tick::Tick,
 };
+
 use ll_bind_ch32v20x as _;
 use panic_halt as _;
 
@@ -19,8 +16,8 @@ use embassy_time::Timer;
 
 #[embassy_executor::main(entry = "riscv_rt_macros::entry")]
 async fn main(_spawner: Spawner) -> ! {
+    CSDK_HAL::init();
     let _tick: Tick = Tick::now();
-
     let adc_ch1 = Adc::new(AdcChannel::CH1, None);
 
     println!("hello embassy!");

@@ -14,9 +14,3 @@ include!("../bind/bind_ll_drv.rs");
 unsafe fn pre_init() {
 	ll_invoke(INVOKE_ID_SYSTEM_INIT);
 }
-
-pub fn ll_drv_init() {
-    unsafe {
-        ll_invoke(INVOKE_ID_LL_DRV_INIT);
-    }
-}

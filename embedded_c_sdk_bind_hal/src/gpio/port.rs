@@ -1,4 +1,3 @@
-use super::ToGpioInitFlag;
 use crate::ll_api::{ll_cmd::*, GpioInitFlag, PortNum};
 use core::marker::PhantomData;
 
@@ -9,7 +8,7 @@ pub enum PortModeInput {
     InPullDown,
 }
 
-impl ToGpioInitFlag for PortModeInput {
+impl PortModeInput {
     fn to_flag(&self) -> u32 {
         match self {
             PortModeInput::InFloating => GpioInitFlag::InFloating as u32,
@@ -24,7 +23,7 @@ pub enum PortModeOutput {
     OutPP,
 }
 
-impl ToGpioInitFlag for PortModeOutput {
+impl PortModeOutput {
     fn to_flag(&self) -> u32 {
         match self {
             PortModeOutput::OutOD => GpioInitFlag::OutOD as u32,

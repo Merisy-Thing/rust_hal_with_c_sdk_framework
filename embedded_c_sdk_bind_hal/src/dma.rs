@@ -1,5 +1,5 @@
-use crate::ll_api::{ll_cmd::*, DmaCtrl, DmaFlags};
 pub use crate::ll_api::DmaChannel;
+use crate::ll_api::{ll_cmd::*, DmaCtrl, DmaFlags};
 
 pub trait DmaDataSize: PartialOrd {}
 
@@ -126,7 +126,8 @@ impl<'a, ST, DT> Config<'a, ST, DT> {
             (false, false) => DmaFlags::None,
         };
 
-        let flags = src_data_size as u32 | dst_data_size as u32 | dir as u32 | inc as  u32 | circular as u32;
+        let flags =
+            src_data_size as u32 | dst_data_size as u32 | dir as u32 | inc as u32 | circular as u32;
 
         Ok(DmaParam {
             src_addr,
@@ -167,7 +168,7 @@ impl Dma {
             param.dst_addr,
             param.dst_buff_size,
             param.flags,
-			extra_flags
+            extra_flags
         );
         if result == 0 {
             Ok(())
@@ -176,32 +177,32 @@ impl Dma {
         }
     }
 
-	pub fn start(&self) -> Result<(), i32> {
-		let result = ll_invoke_inner!( INVOKE_ID_DMA_CTRL, self.ch, DmaCtrl::Start);
+    pub fn start(&self) -> Result<(), i32> {
+        let result = ll_invoke_inner!(INVOKE_ID_DMA_CTRL, self.ch, DmaCtrl::Start);
         if result == 0 {
             Ok(())
         } else {
             Err(result)
         }
-	}
-	
-	pub fn stop(&self) -> Result<(), i32> {
-		let result = ll_invoke_inner!( INVOKE_ID_DMA_CTRL, self.ch, DmaCtrl::Stop);
-        if result == 0 {
-            Ok(())
-        } else {
-            Err(result)
-        }
-	}
+    }
 
-	pub fn wait(&self) -> Result<(), i32> {
-		let result = ll_invoke_inner!( INVOKE_ID_DMA_CTRL, self.ch, DmaCtrl::Wait);
+    pub fn stop(&self) -> Result<(), i32> {
+        let result = ll_invoke_inner!(INVOKE_ID_DMA_CTRL, self.ch, DmaCtrl::Stop);
         if result == 0 {
             Ok(())
         } else {
             Err(result)
         }
-	}
+    }
+
+    pub fn wait(&self) -> Result<(), i32> {
+        let result = ll_invoke_inner!(INVOKE_ID_DMA_CTRL, self.ch, DmaCtrl::Wait);
+        if result == 0 {
+            Ok(())
+        } else {
+            Err(result)
+        }
+    }
 }
 
 impl Drop for Dma {

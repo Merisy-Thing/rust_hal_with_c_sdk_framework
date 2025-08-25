@@ -1,19 +1,12 @@
 #![no_main]
 #![no_std]
 
-use embedded_c_sdk_bind_hal::spi::SpiBus;
-#[allow(unused_imports)]
-#[rustfmt::skip]
 use embedded_c_sdk_bind_hal::{
-    self, ll_invoke, print, println,
-    adc::{self, Adc, AdcBuffered, AdcChannel}, 
-    gpio::{ Pin, PinNum, PinModeOutput, PinModeInput, PinModeAlternate, PortNum, ExtiMode, Port, PortModeOutput}, 
-    pwm::{Pwm, PwmChannel, PwmPolarity}, 
-    tick::{Tick, Delay},
-    usart::{self, Usart},
-	spi::{SpiBusId, Config},
+    self as CSDK_HAL,
+    gpio::{AltMode, Alternate, AnyPin, Input, Level, Output, Pull},
+    print, println,
+    spi::{Config, SpiBus, SpiBusId},
 };
-use embedded_hal::digital::{InputPin, OutputPin};
 use ll_bind_ch32v20x as _;
 use panic_halt as _;
 
@@ -23,18 +16,18 @@ use w25q32jv::*;
 
 #[embassy_executor::main(entry = "riscv_rt_macros::entry")]
 async fn main(_spawner: Spawner) -> ! {
+    let p = CSDK_HAL::init();
     println!("hello embassy!");
 
-    let mut key = Pin::new(PortNum::PB, PinNum::Pin2).into_input(PinModeInput::InPullUp);
+    let key = Input::new(p.PB2.into::<AnyPin>(), Pull::Up);
+    let mut _sck = Alternate::new(p.PA5.into::<AnyPin>(), AltMode::AFPP);
+    let mut _mosi = Alternate::new(p.PA7.into::<AnyPin>(), AltMode::AFPP);
+    let mut _miso = Input::new(p.PA6.into::<AnyPin>(), Pull::Up);
+    let mut nss = Output::new(p.PA2.into::<AnyPin>(), Level::High);
+    nss.set_high();
 
-    let mut _sck = Pin::new(PortNum::PA, PinNum::Pin5).into_alternate(PinModeAlternate::AFPP);
-    let mut _mosi = Pin::new(PortNum::PA, PinNum::Pin7).into_alternate(PinModeAlternate::AFPP);
-    let mut _miso = Pin::new(PortNum::PA, PinNum::Pin6).into_input(PinModeInput::InPullUp);
-    let mut nss = Pin::new(PortNum::PA, PinNum::Pin2).into_output(PinModeOutput::OutPP);
-    nss.set_high().ok();
-
-    let hold = Pin::new(PortNum::PA, PinNum::Pin0).into_output(PinModeOutput::OutPP);
-    let wp = Pin::new(PortNum::PA, PinNum::Pin1).into_output(PinModeOutput::OutPP);
+    let hold = Output::new(p.PA0.into::<AnyPin>(), Level::High);
+    let wp = Output::new(p.PA1.into::<AnyPin>(), Level::High);
 
     let spi_cfg = Config::default();
     let spi_dev = SpiBus::new(SpiBusId::Bus1, &spi_cfg).to_device(nss);
@@ -59,7 +52,7 @@ async fn main(_spawner: Spawner) -> ! {
         }
         addr += read_buf.len() as u32;
 
-        if key.is_low().unwrap() {
+        if key.is_low() {
             Timer::after_ticks(5 as u64).await;
         } else {
             Timer::after_ticks(1000 as u64).await;

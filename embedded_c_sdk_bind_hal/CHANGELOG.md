@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.10.0 - 2025-8-25
+
+ - bump dep
+ - rework gpio::Pin mod, base on: embassy-hal-internal 
+
 ## 0.9.0 - 2025-8-10
 
  - update dep: embassy-sync = "0.7.0"

@@ -17,8 +17,6 @@ pub unsafe extern "C" fn start_rust() -> ! {
         fn main() -> !;
     }
 
-    ll_invoke(INVOKE_ID_LL_DRV_INIT);
-    //ll_invoke(INVOKE_ID_LOG_PUTS, "start main\r\n", 12);
     main();
 }
 

@@ -14,7 +14,8 @@
             "command": "cargo",
             "args": [
                 "build",
-                "--example", "tft_0_96_ring"
+                "--example",
+                "${input:Ch32Examples}"
             ],
             "problemMatcher": [
                 "$rustc"
@@ -28,7 +29,12 @@
             "label": "Build (release)",
             "type": "process",
             "command": "cargo",
-            "args": ["build", "--release", "--example", "tft_0_96_ring"],
+            "args": [
+                "build",
+                "--release",
+                "--example",
+                "${input:Ch32Examples}"
+            ],
             "problemMatcher": [
                 "$rustc"
             ],
@@ -41,18 +47,48 @@
             "label": "Clean",
             "type": "process",
             "command": "cargo",
-            "args": ["clean"],
+            "args": [
+                "clean"
+            ],
             "problemMatcher": [],
             "group": "build"
         },
-		{
-			"label": "Flash(Wlink)",
-			"type": "shell",
-			"command": "wlink",
-			"args": [
-				"flash", "target\\riscv32imac-unknown-none-elf\\release\\examples\\tft_0_96_ring",
-			],
-            "dependsOn": ["Build (release)"],
-		}
+        {
+            "label": "Flash(Wlink)",
+            "type": "shell",
+            "command": "wlink",
+            "args": [
+                "flash",
+                "target\\riscv32imac-unknown-none-elf\\release\\examples\\${input:Ch32Examples}",
+            ],
+            "dependsOn": [
+                "Build (release)"
+            ],
+        }
+    ],
+    "inputs": [
+        {
+            "id": "Ch32Examples",
+            "type": "pickString",
+            "description": "What example do you want to process?",
+            "options": [
+                "dma",
+                "bmp180_api",
+                "bmp180",
+                "fast_pin",
+                "port",
+                "print",
+                "tft_0_96",
+                "tft_0_96_ring",
+                "spi_flash",
+                "pwm",
+                "gpio",
+                "adc",
+                "adc-buffered",
+                "usart",
+                "bare_metal",
+                "tick_timer",
+            ]
+        }
     ]
 }

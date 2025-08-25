@@ -1,4 +1,4 @@
-use super::{PinNum, ToGpioInitFlag};
+use super::PinNum;
 use crate::ll_api::{ll_cmd::*, GpioInitFlag, PortNum};
 use core::marker::PhantomData;
 
@@ -49,7 +49,7 @@ pub enum FastPinModeInput {
     InPullDown,
 }
 
-impl ToGpioInitFlag for FastPinModeInput {
+impl FastPinModeInput {
     fn to_flag(&self) -> u32 {
         match self {
             FastPinModeInput::InFloating => GpioInitFlag::InFloating as u32,
@@ -66,7 +66,7 @@ pub enum FastPinModeOutput {
     OutPP,
 }
 
-impl ToGpioInitFlag for FastPinModeOutput {
+impl FastPinModeOutput {
     fn to_flag(&self) -> u32 {
         match self {
             FastPinModeOutput::OutOD => GpioInitFlag::OutOD as u32,

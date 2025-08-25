@@ -3,20 +3,14 @@
 
 use bmp180_embedded_hal::blocking::UninitBMP180;
 use bmp180_embedded_hal::Mode::UltraHighResolution;
-use embedded_c_sdk_bind_hal::gpio::fast_pin_num::*;
-use embedded_c_sdk_bind_hal::gpio::{FastPin, FastPinModeInput, FastPinModeOutput, FastPinReg};
-use embedded_c_sdk_bind_hal::i2c::{I2CBusId, I2C};
-#[allow(unused_imports)]
-#[rustfmt::skip]
 use embedded_c_sdk_bind_hal::{
-    self, ll_invoke, print, println, setInterval,
-    adc::{self, Adc, AdcBuffered, AdcChannel}, 
-    gpio::{ Pin, PinNum, PinModeOutput, PinModeInput, PinModeAlternate, PortNum, ExtiMode, Port, PortModeOutput, }, 
-    pwm::{Pwm, PwmChannel, PwmPolarity}, 
-    tick::{Tick, Delay},
-    usart::{self, Usart}
+    self as CSDK_HAL, self,
+    gpio::PortNum,
+    gpio::{fast_pin_num::*, FastPin, FastPinModeInput, FastPinModeOutput, FastPinReg},
+    i2c::{I2CBusId, I2C},
+    println,
+    tick::{Delay, Tick},
 };
-
 use embedded_hal::{self, delay::DelayNs, digital::*};
 use ll_bind_ch32v20x as _;
 //use panic_halt as _;
@@ -53,6 +47,7 @@ const PB2: FastPin<PB, FastPin2, ()> = FastPin::new();
 
 #[riscv_rt_macros::entry]
 fn main() -> ! {
+    CSDK_HAL::init();
     let mut delay = Delay::new();
 
     let mut led = PA8.into_output(FastPinModeOutput::OutPP);
@@ -120,17 +115,20 @@ mod ffi_i2c {
     use core::ptr::addr_of_mut;
     use core::slice;
 
-    use embedded_c_sdk_bind_hal::gpio::fast_pin_num::*;
-    use embedded_c_sdk_bind_hal::gpio::{FastPin, FastPinModeOutput, OutputFastPin};
-    use embedded_c_sdk_bind_hal::tick::Delay;
+    use embedded_c_sdk_bind_hal::{
+        gpio::fast_pin_num::*,
+        gpio::{FastPin, FastPinModeOutput, OutputFastPin},
+        tick::Delay,
+    };
     use embedded_hal::i2c::I2c;
-    use once_cell::unsync::OnceCell;
+    use local_static::LocalStatic;
     use soft_i2c::{OpenDrainPin, SoftI2C, FREQ_I2C_SCL_100K};
 
     const SCL_PIN: FastPin<super::PB, FastPin13, OutputFastPin> = FastPin::new();
     const SDA_PIN: FastPin<super::PB, FastPin14, OutputFastPin> = FastPin::new();
-    static mut SOFT_I2C: OnceCell<SoftI2C<FastPin<crate::PB, FastPin13, OutputFastPin>, SdaWrap, Delay, FREQ_I2C_SCL_100K>,
-    > = OnceCell::new();
+    static SOFT_I2C: LocalStatic<
+        SoftI2C<FastPin<crate::PB, FastPin13, OutputFastPin>, SdaWrap, Delay, FREQ_I2C_SCL_100K>,
+    > = LocalStatic::new();
 
     struct SdaWrap<'a>(&'a mut FastPin<super::PB, FastPin14, OutputFastPin>);
 
@@ -153,38 +151,36 @@ mod ffi_i2c {
         static mut DELAY: Delay = Delay::new();
         static mut SCL: FastPin<crate::PB, FastPin13, OutputFastPin> = FastPin::new();
         static mut SDA: FastPin<crate::PB, FastPin14, OutputFastPin> = FastPin::new();
-        static mut SDA_OD: SdaWrap = SdaWrap(unsafe{ &mut SDA });
+        static mut SDA_OD: SdaWrap = SdaWrap(unsafe { &mut SDA });
 
         SCL = SCL_PIN.into_output(FastPinModeOutput::OutOD);
         SDA = SDA_PIN.into_output(FastPinModeOutput::OutOD);
 
-        SOFT_I2C.get_or_init(|| SoftI2C::<_, _, _, FREQ_I2C_SCL_100K>::new(&mut *addr_of_mut!(SCL), &mut *addr_of_mut!(SDA_OD), &mut *addr_of_mut!(DELAY)));
+        SOFT_I2C.set(SoftI2C::<_, _, _, FREQ_I2C_SCL_100K>::new(
+            &mut *addr_of_mut!(SCL),
+            &mut *addr_of_mut!(SDA_OD),
+            &mut *addr_of_mut!(DELAY),
+        ));
     }
 
     #[no_mangle]
     unsafe extern "C" fn ffi_i2c_read(addr: u16, read: *mut u8, size: u32) -> core::ffi::c_int {
-        if let Some(i2c) = SOFT_I2C.get_mut() {
-            let rd_buf = slice::from_raw_parts_mut(read, size as usize);
-            match i2c.read(addr as u8, rd_buf) {
-                Ok(_) => return 0,
-                Err(_) => return -2,
-            }
+        let i2c = SOFT_I2C.get_mut();
+        let rd_buf = slice::from_raw_parts_mut(read, size as usize);
+        match i2c.read(addr as u8, rd_buf) {
+            Ok(_) => return 0,
+            Err(_) => return -2,
         }
-
-        return -1;
     }
 
     #[no_mangle]
     unsafe extern "C" fn ffi_i2c_write(addr: u16, write: *const u8, size: u32) -> core::ffi::c_int {
-        if let Some(i2c) = SOFT_I2C.get_mut() {
-            let wr_buf = slice::from_raw_parts(write, size as usize);
-            match i2c.write(addr as u8, wr_buf) {
-                Ok(_) => return 0,
-                Err(_) => return -2,
-            }
+        let i2c = SOFT_I2C.get_mut();
+        let wr_buf = slice::from_raw_parts(write, size as usize);
+        match i2c.write(addr as u8, wr_buf) {
+            Ok(_) => return 0,
+            Err(_) => return -2,
         }
-
-        return -1;
     }
 
     #[no_mangle]
@@ -195,15 +191,12 @@ mod ffi_i2c {
         read: *mut u8,
         rd_len: u32,
     ) -> core::ffi::c_int {
-        if let Some(i2c) = SOFT_I2C.get_mut() {
-            let rd_buf = slice::from_raw_parts_mut(read, rd_len as usize);
-            let wr_buf = slice::from_raw_parts(write, wr_len as usize);
-            match i2c.write_read(addr as u8, wr_buf, rd_buf) {
-                Ok(_) => return 0,
-                Err(_) => return -2,
-            }
+        let i2c = SOFT_I2C.get_mut();
+        let rd_buf = slice::from_raw_parts_mut(read, rd_len as usize);
+        let wr_buf = slice::from_raw_parts(write, wr_len as usize);
+        match i2c.write_read(addr as u8, wr_buf, rd_buf) {
+            Ok(_) => return 0,
+            Err(_) => return -2,
         }
-
-        return -1;
     }
 }

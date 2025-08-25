@@ -27,23 +27,31 @@ fn main() {
     }
     cc_build.includes(h_folders);
     cc_build.files(&c_files);
-    
-    cc_build.define("USE_FULL_ASSERT", None);
+
+    cc_build.define("HK32F0301MF4P7C", None);
 
     #[cfg(feature = "gcc")]
     {
-        cc_build.target("thumbv6m-none-eabi");
-        cc_build.opt_level(2);
-        cc_build.compiler("arm-none-eabi-gcc");
+        cc_build.opt_level(2).compiler("arm-none-eabi-gcc");
     }
     #[cfg(feature = "clang")]
     {
-        cc_build.target("armv6m-none-eabi");
-        cc_build.opt_level_str("s");
-        cc_build.compiler("clang");
-        cc_build.archiver("llvm-ar");
+        cc_build
+            .opt_level_str("s")
+            .compiler("clang")
+            .archiver("llvm-ar")
+            .flag("-flto");
     }
+    cc_build
+        .flag("-mcpu=cortex-m0")
+        .flag("-mthumb")
+        .flag("-mlittle-endian")
+        .flag("-fsigned-char")
+        .flag("-ffunction-sections")
+        .flag("-fdata-sections")
+        .flag("-fno-common");
 
+    cc_build.target("thumbv6m-none-eabi");
     cc_build.compile("ll_bind_hk32F0301mxxc");
 
     //bindgen ll_drv

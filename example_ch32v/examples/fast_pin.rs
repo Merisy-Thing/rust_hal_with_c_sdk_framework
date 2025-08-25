@@ -1,19 +1,14 @@
 #![no_main]
 #![no_std]
 
-use embedded_c_sdk_bind_hal::gpio::fast_pin_num::*;
-use embedded_c_sdk_bind_hal::gpio::{
-    FastPin, FastPinModeInput, FastPinModeOutput, FastPinReg, PortReg,
-};
-#[allow(unused_imports)]
-#[rustfmt::skip]
 use embedded_c_sdk_bind_hal::{
-    self, ll_invoke, print, println, setInterval,
-    adc::{self, Adc, AdcBuffered, AdcChannel}, 
-    gpio::{ Pin, PinNum, PinModeOutput, PinModeInput, PinModeAlternate, PortNum, ExtiMode, Port, PortModeOutput, }, 
-    pwm::{Pwm, PwmChannel, PwmPolarity}, 
-    tick::{Tick, Delay},
-    usart::{self, Usart}
+    self as CSDK_HAL,
+    gpio::{
+        fast_pin_num::*, AnyPin, FastPin, FastPinModeInput, FastPinModeOutput, FastPinReg, Level,
+        Output, Port, PortModeOutput, PortNum, PortReg,
+    },
+    println,
+    tick::{Delay, Tick},
 };
 
 use embedded_hal::{self, delay::DelayNs, digital::*};
@@ -52,16 +47,18 @@ const PB2: FastPin<PB, FastPin2, ()> = FastPin::new();
 
 #[riscv_rt_macros::entry]
 fn main() -> ! {
+    let p = CSDK_HAL::init();
     let mut delay = Delay::new();
 
-    let mut gnd = Pin::new(PortNum::PA, PinNum::Pin11).into_output(PinModeOutput::OutPP);
-    gnd.set_low().ok();
+    let mut gnd = Output::new(p.PA11.into::<AnyPin>(), Level::Low); //Pin::new(PortNum::PA, PinNum::Pin11).into_output(PinModeOutput::OutPP);
+    gnd.set_low();
 
     let mut led = PA8.into_output(FastPinModeOutput::OutPP);
     let mut key = PB2.into_input(FastPinModeInput::InPullUp);
 
-    let mut api_pin = Pin::new(PortNum::PA, PinNum::Pin10).into_output(PinModeOutput::OutPP);
+    let mut api_pin = Output::new(p.PA10.into::<AnyPin>(), Level::Low); //Pin::new(PortNum::PA, PinNum::Pin10).into_output(PinModeOutput::OutPP);
     let mut port_pin = Port::new(PortNum::PA, 1 << 10, &PA_REG).into_output(PortModeOutput::OutPP);
+
     let mut fast_pin = PA10.into_output(FastPinModeOutput::OutPP);
 
     loop {
@@ -70,10 +67,10 @@ fn main() -> ! {
         led.set_low().ok();
         delay.delay_ms(250);
 
-        api_pin.set_high().ok(); //1.02us H
-        api_pin.set_low().ok(); //1.02us L
-        api_pin.set_high().ok(); //1.02us H
-        api_pin.set_low().ok();
+        api_pin.set_high(); //1.02us H
+        api_pin.set_low(); //1.02us L
+        api_pin.set_high(); //1.02us H
+        api_pin.set_low();
 
         delay.delay_ms(6);
 

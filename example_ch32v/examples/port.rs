@@ -1,16 +1,10 @@
 #![no_main]
 #![no_std]
 
-use embedded_c_sdk_bind_hal::gpio::{PortModeInput, PortReg};
-#[allow(unused_imports)]
-#[rustfmt::skip]
 use embedded_c_sdk_bind_hal::{
-    self, ll_invoke, print, println, setInterval,
-    adc::{self, Adc, AdcBuffered, AdcChannel}, 
-    gpio::{ Pin, PinNum, PinModeOutput, PinModeInput, PinModeAlternate, PortNum, ExtiMode, Port, PortModeOutput, }, 
-    pwm::{Pwm, PwmChannel, PwmPolarity}, 
-    tick::{Tick, Delay},
-    usart::{self, Usart}
+    self as CSDK_HAL,
+    gpio::{Port, PortModeInput, PortModeOutput, PortNum, PortReg},
+    tick::Delay,
 };
 
 use embedded_hal::{self, delay::DelayNs, digital::*};
@@ -33,6 +27,7 @@ const PB_REG: PortReg = PortReg {
 
 #[riscv_rt_macros::entry]
 fn main() -> ! {
+    CSDK_HAL::init();
     let mut tick = Delay::new();
     let mut pa11 = Port::new(PortNum::PA, 1 << 11, &PA_REG).into_output(PortModeOutput::OutPP);
     pa11.set_low().ok();

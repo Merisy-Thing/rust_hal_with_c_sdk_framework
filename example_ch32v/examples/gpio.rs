@@ -1,17 +1,13 @@
 #![no_main]
 #![no_std]
 
-#[allow(unused_imports)]
-#[rustfmt::skip]
 use embedded_c_sdk_bind_hal::{
-    self, ll_invoke, print, println,
-    adc::{self, Adc, AdcBuffered, AdcChannel}, 
-    gpio::{ Pin, PinNum, PinModeOutput, PinModeInput, PinModeAlternate, PortNum, ExtiMode, Port, PortModeOutput, }, 
-    pwm::{Pwm, PwmChannel, PwmPolarity}, 
-    tick::{Tick, Delay},
-    usart::{self, Usart}
+    self as CSDK_HAL,
+    gpio::{AnyPin, Input, Level, Output, Pull},
+    print, println,
+    tick::{Delay, Tick},
 };
-use embedded_hal::{self, delay::DelayNs, digital::*};
+use embedded_hal::{self, delay::DelayNs};
 use ll_bind_ch32v20x as _;
 use panic_halt as _;
 
@@ -20,20 +16,21 @@ use embassy_time::Timer;
 
 #[embassy_executor::main(entry = "riscv_rt_macros::entry")]
 async fn main(_spawner: Spawner) -> ! {
+    let p = CSDK_HAL::init();
     let mut delay = Delay::new();
     let _tick: Tick = Tick::now();
 
-    let mut led = Pin::new(PortNum::PB, PinNum::Pin3).into_output(PinModeOutput::OutPP);
-    let mut key = Pin::new(PortNum::PB, PinNum::Pin15).into_input(PinModeInput::InPullUp);
+    let mut led = Output::new(p.PB3.into::<AnyPin>(), Level::Low);
+    let key = Input::new(p.PB15.into::<AnyPin>(), Pull::Up);
 
     println!("hello embassy!");
     loop {
-        led.toggle().ok();
+        led.toggle();
 
         Timer::after_ticks(100 as u64).await;
         delay.delay_ms(100);
 
-        if key.is_low().unwrap() {
+        if key.is_low() {
             Timer::after_ticks(500 as u64).await;
         }
     }

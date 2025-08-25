@@ -1,20 +1,14 @@
 #![no_main]
 #![no_std]
 
-#[allow(unused_imports)]
-#[rustfmt::skip]
 use embedded_c_sdk_bind_hal::{
-    self, ll_invoke, print, println,
-    adc::{self, Adc, AdcBuffered, AdcChannel}, 
-    gpio::{ Pin, PinNum, PinModeOutput, PinModeInput, PinModeAlternate, PortNum, ExtiMode, Port, PortModeOutput, }, 
-    pwm::{Pwm, PwmChannel, PwmPolarity}, 
-    tick::{Tick, Delay},
-    usart::{self, Usart}
+    self as CSDK_HAL,
+    gpio::{AltMode, Alternate, AnyPin, Input, Port, PortModeOutput, PortNum, PortReg, Pull},
+    ll_invoke, print, println,
+    tick::{Delay, Tick},
+    usart::{self, Usart},
 };
-use embedded_c_sdk_bind_hal::{
-    self as csdk_hal,
-    gpio::{FastPinReg, PortReg},
-};
+
 use embedded_hal::{self, delay::DelayNs};
 //use embedded_hal_nb::serial::Read;
 use embedded_io::{self, Write};
@@ -34,10 +28,11 @@ const PC_REG: PortReg = PortReg {
 
 #[embassy_executor::main(entry = "riscv_rt_macros::entry")]
 async fn main(spawner: Spawner) -> ! {
+    let p = CSDK_HAL::init();
     let mut delay = Delay::new();
     let _tick: Tick = Tick::now();
 
-    ll_invoke!(csdk_hal::INVOKE_ID_LOG_PUTS, b"123".as_ptr(), 3);
+    ll_invoke!(CSDK_HAL::INVOKE_ID_LOG_PUTS, b"123".as_ptr(), 3);
 
     let mut usart2 = usart::Usart::new(&usart::USART2);
     let mut usart2_buf: [u8; 64] = [0; 64];
@@ -45,8 +40,8 @@ async fn main(spawner: Spawner) -> ! {
     let config = usart::Config::default();
     usart2.init(&config);
 
-    let _usart2_tx = Pin::new(PortNum::PA, PinNum::Pin2).into_alternate(PinModeAlternate::AFPP);
-    let _usart2_rx = Pin::new(PortNum::PA, PinNum::Pin3).into_input(PinModeInput::InPullUp);
+    let _usart2_tx = Alternate::new(p.PA2.into::<AnyPin>(), AltMode::AFPP);
+    let _usart2_rx = Input::new(p.PA3.into::<AnyPin>(), Pull::Up);
     let _portc = Port::new(PortNum::PC, 0xFFFF, &PC_REG).into_output(PortModeOutput::OutPP);
 
     let _ = spawner.spawn(task_1(usart2.clone()));

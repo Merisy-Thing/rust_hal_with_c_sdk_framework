@@ -3,24 +3,19 @@
 
 use bmp180_embedded_hal::blocking::UninitBMP180;
 use bmp180_embedded_hal::Mode::UltraHighResolution;
-use embedded_c_sdk_bind_hal::gpio::fast_pin_num::*;
-use embedded_c_sdk_bind_hal::gpio::{
-    FastPin, FastPinModeInput, FastPinModeOutput, FastPinReg, OutputFastPin,
-};
-use soft_i2c::{OpenDrainPin, SoftI2C, FREQ_I2C_SCL_100K};
-#[allow(unused_imports)]
-#[rustfmt::skip]
-use embedded_c_sdk_bind_hal::{
-    self, ll_invoke, print, println, setInterval,
-    adc::{self, Adc, AdcBuffered, AdcChannel}, 
-    gpio::{ Pin, PinNum, PinModeOutput, PinModeInput, PinModeAlternate, PortNum, ExtiMode, Port, PortModeOutput, }, 
-    pwm::{Pwm, PwmChannel, PwmPolarity}, 
-    tick::{Tick, Delay},
-    usart::{self, Usart}
-};
 
+use embedded_c_sdk_bind_hal::{
+    self as CSDK_HAL,
+    gpio::{
+        fast_pin_num::*, FastPin, FastPinModeInput, FastPinModeOutput, FastPinReg, OutputFastPin,
+        PortNum,
+    },
+    println,
+    tick::Delay,
+};
 use embedded_hal::{self, delay::DelayNs, digital::*};
 use ll_bind_ch32v20x as _;
+use soft_i2c::{OpenDrainPin, SoftI2C, FREQ_I2C_SCL_100K};
 //use panic_halt as _;
 
 struct PA;
@@ -71,6 +66,7 @@ impl<'a> OpenDrainPin for SDA<'a> {
 
 #[riscv_rt_macros::entry]
 fn main() -> ! {
+    CSDK_HAL::init();
     let mut delay = Delay::new();
 
     let mut led = PA8.into_output(FastPinModeOutput::OutPP);
@@ -81,9 +77,11 @@ fn main() -> ! {
     let mut bmp180;
     // let sda = Pin::new(PortNum::PB, PinNum::Pin14);
     // let scl = Pin::new(PortNum::PB, PinNum::Pin13);
-    let mut sda_pin = FastPin::<PB, FastPin14, OutputFastPin>::new().into_output(FastPinModeOutput::OutOD);
+    let mut sda_pin =
+        FastPin::<PB, FastPin14, OutputFastPin>::new().into_output(FastPinModeOutput::OutOD);
     let mut sda = SDA(&mut sda_pin);
-    let mut scl = FastPin::<PB, FastPin13, OutputFastPin>::new().into_output(FastPinModeOutput::OutOD);
+    let mut scl =
+        FastPin::<PB, FastPin13, OutputFastPin>::new().into_output(FastPinModeOutput::OutOD);
     let mut i2c_delay = Delay::new();
     let soft_i2c = SoftI2C::<_, _, _, FREQ_I2C_SCL_100K>::new(&mut scl, &mut sda, &mut i2c_delay);
     let uninit_bmp180 = UninitBMP180::builder(soft_i2c, Delay::new())

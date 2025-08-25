@@ -1,4 +1,5 @@
 use crate::ll_api::{ll_cmd::*, GpioExtiFlag};
+use crate::gpio::Pin;
 
 pub enum ExtiMode {
     Rising,
@@ -16,37 +17,36 @@ impl ExtiMode {
     }
 }
 
-impl super::Pin<super::pin::Input> {
+impl<'d> super::pin::Input<'d> {
     /// Configures the EXTI (External Interrupt) mode for the pin.
     ///
     /// # Arguments
     /// * `mode` - The EXTI mode to set. This can be rising edge, falling edge, both edges, etc.
     pub fn exti_config(&self, mode: ExtiMode) {
-        ll_invoke_inner!(INVOKE_ID_GPIO_EXTI, self.port, self.pin, mode.to_flag());
+        let port = self.pin.pin.port();
+        let pin = self.pin.pin.pin();
+
+        ll_invoke_inner!(INVOKE_ID_GPIO_EXTI, port, pin, mode.to_flag());
     }
 
     /// Enables the interrupt for the pin.
     ///
     /// This function can be reenabled after disabling it.
     pub fn enable_interrupt(&self) {
-        ll_invoke_inner!(
-            INVOKE_ID_GPIO_EXTI,
-            self.port,
-            self.pin,
-            GpioExtiFlag::Enable
-        );
+        let port = self.pin.pin.port();
+        let pin = self.pin.pin.pin();
+
+        ll_invoke_inner!(INVOKE_ID_GPIO_EXTI, port, pin, GpioExtiFlag::Enable);
     }
 
     /// Disables the interrupt for the pin.
     ///
     /// This function can be used to temporarily disable the interrupt without changing the EXTI mode.
     pub fn disable_interrupt(&self) {
-        ll_invoke_inner!(
-            INVOKE_ID_GPIO_EXTI,
-            self.port,
-            self.pin,
-            GpioExtiFlag::Disable
-        );
+        let port = self.pin.pin.port();
+        let pin = self.pin.pin.pin();
+
+        ll_invoke_inner!(INVOKE_ID_GPIO_EXTI, port, pin, GpioExtiFlag::Disable);
     }
 }
 
@@ -75,12 +75,10 @@ unsafe extern "C" fn EXTI_IRQ_hook_rs(_line: u8) {
 #[cfg(feature = "embassy")]
 pub mod exti_future {
     use core::future::Future;
-    use core::pin::Pin;
     use core::task::{Context, Poll};
     use embassy_sync::waitqueue::AtomicWaker;
     use portable_atomic::{AtomicU16, Ordering};
-
-    use crate::gpio::{PinNum, PortNum};
+    use crate::gpio::Pin;
 
     const EXTI_COUNT: usize = 16;
     const NEW_AW: AtomicWaker = AtomicWaker::new();
@@ -95,9 +93,11 @@ pub mod exti_future {
         }
     }
 
-    impl super::super::Pin<super::super::pin::Input> {
+    impl<'d> super::super::pin::Input<'d> {
         pub async fn wait_for_high(&mut self) {
-            let fut = ExtiInputFuture::new(self.port, self.pin, super::ExtiMode::Rising);
+        let port = self.pin.pin.port();
+        let pin = self.pin.pin.pin();
+            let fut = ExtiInputFuture::new(port, pin, super::ExtiMode::Rising);
             if Self::is_high(self) {
                 return;
             }
@@ -105,7 +105,9 @@ pub mod exti_future {
         }
 
         pub async fn wait_for_low(&mut self) {
-            let fut = ExtiInputFuture::new(self.port, self.pin, super::ExtiMode::Falling);
+        let port = self.pin.pin.port();
+        let pin = self.pin.pin.pin();
+            let fut = ExtiInputFuture::new(port, pin, super::ExtiMode::Falling);
             if !Self::is_high(self) {
                 return;
             }
@@ -113,25 +115,31 @@ pub mod exti_future {
         }
 
         pub async fn wait_for_rising_edge(&mut self) {
-            ExtiInputFuture::new(self.port, self.pin, super::ExtiMode::Rising).await
+            let port = self.pin.pin.port();
+            let pin = self.pin.pin.pin();
+            ExtiInputFuture::new(port, pin, super::ExtiMode::Rising).await
         }
 
         pub async fn wait_for_falling_edge(&mut self) {
-            ExtiInputFuture::new(self.port, self.pin, super::ExtiMode::Falling).await
+        let port = self.pin.pin.port();
+        let pin = self.pin.pin.pin();
+            ExtiInputFuture::new(port, pin, super::ExtiMode::Falling).await
         }
 
         pub async fn wait_for_any_edge(&mut self) {
-            ExtiInputFuture::new(self.port, self.pin, super::ExtiMode::RisingFalling).await
+            let port = self.pin.pin.port();
+            let pin = self.pin.pin.pin();
+            ExtiInputFuture::new(port, pin, super::ExtiMode::RisingFalling).await
         }
     }
 
     struct ExtiInputFuture {
-        port: PortNum,
-        pin: PinNum,
+        port: u8,
+        pin: u8,
     }
 
     impl ExtiInputFuture {
-        fn new(port: PortNum, pin: PinNum, mode: super::ExtiMode) -> Self {
+        fn new(port: u8, pin: u8, mode: super::ExtiMode) -> Self {
             ll_invoke_inner!(crate::INVOKE_ID_GPIO_EXTI, port, pin, mode.to_flag());
             //ll_invoke_inner!(crate::INVOKE_ID_GPIO_EXTI, pin, super::GpioExtiFlag::Enable);
             Self { port, pin }
@@ -152,7 +160,7 @@ pub mod exti_future {
     impl Future for ExtiInputFuture {
         type Output = ();
 
-        fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        fn poll(self: core::pin::Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
             EXTI_WAKERS[self.pin as usize].register(cx.waker());
 
             if EXTI_STATUS.bit_clear(self.pin as u32, Ordering::Relaxed) {
@@ -163,7 +171,7 @@ pub mod exti_future {
         }
     }
 
-    impl embedded_hal_async::digital::Wait for super::super::Pin<super::super::pin::Input> {
+    impl<'d> embedded_hal_async::digital::Wait for super::super::Input<'d> {
         async fn wait_for_high(&mut self) -> Result<(), Self::Error> {
             self.wait_for_high().await;
             Ok(())

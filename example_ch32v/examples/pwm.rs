@@ -1,17 +1,12 @@
 #![no_main]
 #![no_std]
 
-#[allow(unused_imports)]
-#[rustfmt::skip]
 use embedded_c_sdk_bind_hal::{
-    self, ll_invoke, print, println,
-    adc::{self, Adc, AdcBuffered, AdcChannel}, 
-    gpio::{ Pin, PinNum, PinModeOutput, PinModeInput, PinModeAlternate, PortNum, ExtiMode, Port, PortModeOutput, }, 
-    pwm::{Pwm, PwmChannel, PwmPolarity}, 
-    tick::{Tick, Delay},
-    usart::{self, Usart}
+    self as CSDK_HAL,
+    gpio::{AltMode, Alternate, AnyPin, Input, Pull},
+    print, println,
+    pwm::{Pwm, PwmChannel, PwmPolarity},
 };
-use embedded_hal::digital::InputPin;
 use fugit::ExtU32;
 use ll_bind_ch32v20x as _;
 use panic_halt as _;
@@ -21,10 +16,11 @@ use embassy_time::Timer;
 
 #[embassy_executor::main(entry = "riscv_rt_macros::entry")]
 async fn main(_spawner: Spawner) -> ! {
+    let p = CSDK_HAL::init();
     println!("hello embassy!");
 
-    let mut key = Pin::new(PortNum::PB, PinNum::Pin2).into_input(PinModeInput::InPullUp);
-    let mut _led = Pin::new(PortNum::PA, PinNum::Pin8).into_alternate(PinModeAlternate::AFPP);
+    let key = Input::new(p.PB15.into::<AnyPin>(), Pull::Up);
+    let mut _led = Alternate::new(p.PA8.into::<AnyPin>(), AltMode::AFPP);
     let pwm0 = Pwm::<2_000_000>::new(PwmChannel::CH0); //1K
     pwm0.set_polarity(PwmPolarity::ActiveHigh);
     pwm0.set_duty(100);
@@ -39,7 +35,7 @@ async fn main(_spawner: Spawner) -> ! {
     let mut duty = 0;
     let mut period = 1_u32;
     loop {
-        if key.is_low().unwrap() {
+        if key.is_low() {
             if duty < pwm0.get_max_duty() {
                 duty += 100;
             } else {
