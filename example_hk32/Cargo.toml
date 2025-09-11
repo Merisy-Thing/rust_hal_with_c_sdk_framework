@@ -12,9 +12,9 @@ panic-halt = "1.0.0"
 
 embedded-hal = { version = "1.0.0" }
 
-embassy-executor = { version="0.8.0", features=["arch-cortex-m", "executor-thread"] }
-embassy-time = { version="0.4.0", features=["tick-hz-1_000"] }
-embassy-futures = "0.1.1"
+embassy-executor = { version="0.9.1", features=["arch-cortex-m", "executor-thread"] }
+embassy-time = { version="0.5.0", features=["tick-hz-1_000"] }
+embassy-futures = "0.1.2"
 
 ll_bind_hk32F0301mxxc = { version = "0.1.0", path = "../ll_bind_hk32F0301mxxc", features = ["clang"] }
 

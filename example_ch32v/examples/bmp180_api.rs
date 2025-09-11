@@ -130,19 +130,19 @@ mod ffi_i2c {
         SoftI2C<FastPin<crate::PB, FastPin13, OutputFastPin>, SdaWrap, Delay, FREQ_I2C_SCL_100K>,
     > = LocalStatic::new();
 
-    struct SdaWrap<'a>(&'a mut FastPin<super::PB, FastPin14, OutputFastPin>);
+    struct SdaWrap(*mut FastPin<super::PB, FastPin14, OutputFastPin>);
 
-    impl<'a> OpenDrainPin for SdaWrap<'a> {
+    impl OpenDrainPin for SdaWrap {
         fn set(&mut self, level: bool) {
             if level {
-                self.0.output_high();
+                unsafe { self.0.as_ref().unwrap().output_high() };
             } else {
-                self.0.output_low();
+                unsafe { self.0.as_ref().unwrap().output_low() };
             }
         }
 
         fn get(&mut self) -> bool {
-            self.0.is_input_high()
+            unsafe { self.0.as_ref().unwrap().is_input_high() }
         }
     }
 
@@ -151,7 +151,7 @@ mod ffi_i2c {
         static mut DELAY: Delay = Delay::new();
         static mut SCL: FastPin<crate::PB, FastPin13, OutputFastPin> = FastPin::new();
         static mut SDA: FastPin<crate::PB, FastPin14, OutputFastPin> = FastPin::new();
-        static mut SDA_OD: SdaWrap = SdaWrap(unsafe { &mut SDA });
+        static mut SDA_OD: SdaWrap = SdaWrap(&raw mut SDA);
 
         SCL = SCL_PIN.into_output(FastPinModeOutput::OutOD);
         SDA = SDA_PIN.into_output(FastPinModeOutput::OutOD);
