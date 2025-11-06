@@ -66,27 +66,17 @@ enum {
 	PG = 0x06,
 	PH = 0x07,
 
-	GPIO_FLAG_OUT_PP       = 0x01,
-	GPIO_FLAG_OUT_OD       = 0x02,
-	GPIO_FLAG_OUT_MASK     = 0x03,
+	GPIO_FLAG_IN_FLOATING  = 0,
+	GPIO_FLAG_IN_PU        = 1,
+	GPIO_FLAG_IN_PD        = 2,
+	GPIO_FLAG_OUT_PP       = 3,
+	GPIO_FLAG_OUT_OD       = 4,
+	GPIO_FLAG_AIN          = 5,
 
-	GPIO_FLAG_AIN          = 0x00 << 2,
-	GPIO_FLAG_IN_FLOATING  = 0x01 << 2,
-	GPIO_FLAG_IN_PU        = 0x02 << 2,
-	GPIO_FLAG_IN_PD        = 0x03 << 2,
-	GPIO_FLAG_IN_MASK      = 0x03 << 2,
-
-	GPIO_FLAG_AF_0         = 0x01 << 4,
-	GPIO_FLAG_AF_1         = 0x02 << 4,
-	GPIO_FLAG_AF_2         = 0x03 << 4,
-	GPIO_FLAG_AF_3         = 0x04 << 4,
-	GPIO_FLAG_AF_4         = 0x05 << 4,
-	GPIO_FLAG_AF_5         = 0x06 << 4,
-	GPIO_FLAG_AF_6         = 0x07 << 4,
-	GPIO_FLAG_AF_7         = 0x08 << 4,
-	GPIO_FLAG_AF_OD        = 0x09 << 4,
-	GPIO_FLAG_AF_PP        = 0x0A << 4,
-	GPIO_FLAG_AF_MASK      = 0x0F << 4,
+	GPIO_FLAG_AFOD         = 0x40,
+	GPIO_FLAG_AFPP         = 0x41,
+	GPIO_FLAG_AFIN         = 0x42,
+	GPIO_FLAG_AF_MASK      = 0xC0,
 
 	GPIO_FLAG_EXTI_RISING        = 0x01,
 	GPIO_FLAG_EXTI_FALLING       = 0x02,
@@ -118,7 +108,7 @@ enum {
     PWM_CTRL_ACTIVE_LOW  = 11,
 };
 
-enum ADC {
+enum {
     ADC_CH0,
     ADC_CH1,
     ADC_CH2,

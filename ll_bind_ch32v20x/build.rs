@@ -34,7 +34,7 @@ fn main() {
     cc_build.file("csrc\\c_sdk_lib\\SRC\\Startup\\startup_ch32v20x_D6.S");
 
     cc_build.opt_level(2);
-    cc_build.flag("-march=rv32imacxw").flag("-mabi=ilp32").flag("-msmall-data-limit=8").flag("-msave-restore");
+    cc_build.flag("-march=rv32imacxw").flag("-mabi=ilp32").flag("-msmall-data-limit=8");
     //cc_build.asm_flag("-x assembler-with-cpp");
 
     cc_build.compile("ll_bind_ch32v20x");

@@ -34,24 +34,34 @@ pub enum PinNum {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-#[repr(u32)]
-pub(crate) enum GpioInitFlag {
-    Analog = 0,     // Analog Input
-    OutPP = 1,      // Output Push-Pull
-    OutOD = 2,      // Output Open-Drain
-    InFloating = 4, // Input Floating
-    InPU = 8,       // Input Pull-Up
-    InPD = 12,      // Input Pull-Down
-    AF0 = 16,       // Alternate Function 0
-    AF1 = 32,       // Alternate Function 1
-    AF2 = 48,       // Alternate Function 2
-    AF3 = 64,       // Alternate Function 3
-    AF4 = 80,       // Alternate Function 4
-    AF5 = 96,       // Alternate Function 5
-    AF6 = 112,      // Alternate Function 6
-    AF7 = 128,      // Alternate Function 7
-    AFOD = 144,     // Alternate Function Open-Drain
-    AFPP = 160,     // Alternate Function Push-Pull
+pub(crate) enum GpioInitParam {
+    InFloating, //0x00, Input Floating
+    InPU,       //0x01, Input Pull-Up
+    InPD,       //0x02, Input Pull-Down
+    OutPP,      //0x03, Output Push-Pull
+    OutOD,      //0x04, Output Open-Drain
+    Analog,     //0x05, Analog Input
+    AFOD,       //0x40, Alternate Function Open-Drain
+    AFPP,       //0x41, Alternate Function Push-Pull
+    AFIN,       //0x42, Alternate Function Input
+    AF(u8),     //0x80+   Alternate Function
+}
+
+impl GpioInitParam {
+    pub(crate) const fn param(self) -> u32 {
+        match self {
+            GpioInitParam::InFloating => 0x00,
+            GpioInitParam::InPU => 0x01,
+            GpioInitParam::InPD => 0x02,
+            GpioInitParam::OutPP => 0x03,
+            GpioInitParam::OutOD => 0x04,
+            GpioInitParam::Analog => 0x05,
+            GpioInitParam::AFOD => 0x40,
+            GpioInitParam::AFPP => 0x41,
+            GpioInitParam::AFIN => 0x42,
+            GpioInitParam::AF(idx) => (0x80 | idx) as u32,
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]

@@ -49,7 +49,6 @@ impl HalTickHandler for Tick {
 }
 
 #[no_mangle]
-#[inline]
 #[deprecated(since = "0.7.3", note = "Please use `sys_tick_handler!()` instead")]
 unsafe extern "C" fn sys_tick_inc() {
     Tick::on_sys_tick_interrupt();
@@ -132,6 +131,35 @@ impl Tick {
         };
 
         Duration::<TickType, 1, TICK_FREQ_HZ>::from_ticks(tick)
+    }
+
+    /// Checks if the specified duration has elapsed since the last check.
+    ///
+    /// # Arguments
+    /// * `duration` - The duration to check for in ticks.
+    ///
+    /// # Returns
+    /// * `true` if the specified duration has elapsed, `false` otherwise.
+    pub fn every(&mut self, duration: TickType) -> bool {
+        let timeout = if let Some(elapsed) = Self::now().0.checked_sub(self.0) {
+            if elapsed >= duration {
+                true
+            } else {
+                false
+            }
+        } else {
+            true
+        };
+
+        if timeout {
+            self.0 = Self::now().0;
+        }
+        return timeout;
+    }
+
+    /// Resets the tick counter to the current system tick value.
+    pub fn reset(&mut self) {
+        self.0 = Self::now().0;
     }
 }
 

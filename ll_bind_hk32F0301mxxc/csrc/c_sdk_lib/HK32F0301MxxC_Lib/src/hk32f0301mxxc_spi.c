@@ -126,6 +126,7 @@
   */
 void SPI_DeInit(SPI_TypeDef* SPIx)
 {
+  (void)SPIx;
   /* Check the parameters */
   assert_param(IS_SPI_ALL_PERIPH(SPIx));
 

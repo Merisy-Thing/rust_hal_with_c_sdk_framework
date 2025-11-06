@@ -292,7 +292,6 @@ macro_rules! impl_usart {
         paste::paste! {
             #[allow(non_snake_case)]
             #[no_mangle]
-            #[inline]
             unsafe extern "C" fn [<$USART_id _rx_hook_rs>] (val: u8) {
                 $USART_id.rx_buf.writer().push_one(val);
                 #[cfg(feature = "embassy")]

@@ -91,34 +91,31 @@ int gpio_init(uint32_t port, uint32_t pin, uint32_t flags)
 	GPIO_TypeDef* GPIOx = get_GPIOx(port);
 
 	if(GPIOx) {
-		uint32_t af_flag = flags & GPIO_FLAG_AF_MASK;
-		if(af_flag) {
+		if(flags & GPIO_FLAG_AF_MASK) {
 			GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 			
-			GPIO_PinAFConfig(GPIOx, pin, af_flag >> 4);
+			GPIO_PinAFConfig(GPIOx, pin, flags & 0xFF);
 		} else {
-			if(flags & GPIO_FLAG_OUT_MASK) {
-				if((flags & GPIO_FLAG_OUT_MASK) == GPIO_FLAG_OUT_OD) {
+			if(flags == GPIO_FLAG_OUT_PP || flags == GPIO_FLAG_OUT_OD) {
+				if(flags == GPIO_FLAG_OUT_OD) {
 					GPIO_InitStruct.GPIO_OType = GPIO_OType_OD;
 				} else {
 					GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 				}
 				GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
 				GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
-			} else {
-				uint32_t in_flag = flags & GPIO_FLAG_IN_MASK;
-				if(in_flag == GPIO_FLAG_AIN) {
-					GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AN;
-				} else if(in_flag == GPIO_FLAG_IN_FLOATING) {
-					GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
-					GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
-				} else if(in_flag == GPIO_FLAG_IN_PU) {
-					GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
-					GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-				} else if(in_flag == GPIO_FLAG_IN_PD) {
-					GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
-					GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
-				}
+			} else if(flags == GPIO_FLAG_AIN) {
+				GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AN;
+				GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
+			} else if(flags == GPIO_FLAG_IN_FLOATING) {
+				GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+				GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
+			} else if(flags == GPIO_FLAG_IN_PU) {
+				GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+				GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+			} else if(flags == GPIO_FLAG_IN_PD) {
+				GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;
+				GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_DOWN;
 			}
 		}
 		GPIO_InitStruct.GPIO_Pin   = 1<<pin;
@@ -261,6 +258,7 @@ int ll_invoke(enum INVOKE invoke_id, ...)
 		uint32_t port = va_arg(args, uint32_t);
 		uint32_t pin = va_arg(args, uint32_t);
 		uint32_t flags = va_arg(args, uint32_t);
+		println("port = %d", port);
 
 		result = gpio_init(port, pin, flags);
 	}

@@ -1,5 +1,5 @@
 use super::PinNum;
-use crate::ll_api::{ll_cmd::*, GpioInitFlag, PortNum};
+use crate::ll_api::{ll_cmd::*, GpioInitParam, PortNum};
 use core::marker::PhantomData;
 
 pub trait FastPinReg {
@@ -52,9 +52,9 @@ pub enum FastPinModeInput {
 impl FastPinModeInput {
     fn to_flag(&self) -> u32 {
         match self {
-            FastPinModeInput::InFloating => GpioInitFlag::InFloating as u32,
-            FastPinModeInput::InPullUp => GpioInitFlag::InPU as u32,
-            FastPinModeInput::InPullDown => GpioInitFlag::InPD as u32,
+            FastPinModeInput::InFloating => GpioInitParam::InFloating.param(),
+            FastPinModeInput::InPullUp => GpioInitParam::InPU.param(),
+            FastPinModeInput::InPullDown => GpioInitParam::InPD.param(),
         }
     }
 }
@@ -69,8 +69,8 @@ pub enum FastPinModeOutput {
 impl FastPinModeOutput {
     fn to_flag(&self) -> u32 {
         match self {
-            FastPinModeOutput::OutOD => GpioInitFlag::OutOD as u32,
-            FastPinModeOutput::OutPP => GpioInitFlag::OutPP as u32,
+            FastPinModeOutput::OutOD => GpioInitParam::OutOD.param(),
+            FastPinModeOutput::OutPP => GpioInitParam::OutPP.param(),
         }
     }
 }

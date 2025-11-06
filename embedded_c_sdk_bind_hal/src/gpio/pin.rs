@@ -1,6 +1,6 @@
 //! General-purpose Input/Output (GPIO)
 
-use crate::ll_api::{ll_cmd::*, GpioInitFlag};
+use crate::ll_api::{ll_cmd::*, GpioInitParam};
 use core::convert::Infallible;
 use embassy_hal_internal::{Peri, PeripheralType};
 
@@ -47,7 +47,7 @@ impl<'d> Flex<'d> {
     pub fn set_as_output(&mut self) {
         let port = self.pin._port();
         let pin = self.pin._pin();
-        let flag = GpioInitFlag::OutPP as u32;
+        let flag = GpioInitParam::OutPP.param();
 
         ll_invoke_inner!(INVOKE_ID_GPIO_INIT, port, pin, flag);
     }
@@ -57,7 +57,7 @@ impl<'d> Flex<'d> {
     pub fn set_as_open_drain(&mut self) {
         let port = self.pin._port();
         let pin = self.pin._pin();
-        let flag = GpioInitFlag::OutOD as u32;
+        let flag = GpioInitParam::OutOD.param();
 
         ll_invoke_inner!(INVOKE_ID_GPIO_INIT, port, pin, flag);
     }
@@ -75,7 +75,7 @@ impl<'d> Flex<'d> {
     pub fn set_as_analog(&mut self) {
         let port = self.pin._port();
         let pin = self.pin._pin();
-        let flag = GpioInitFlag::Analog as u32;
+        let flag = GpioInitParam::Analog.param();
 
         ll_invoke_inner!(INVOKE_ID_GPIO_INIT, port, pin, flag);
     }
@@ -178,9 +178,9 @@ pub enum Pull {
 impl Pull {
     const fn to_pupdr(self) -> u32 {
         match self {
-            Pull::None => GpioInitFlag::InFloating as u32,
-            Pull::Up => GpioInitFlag::InPU as u32,
-            Pull::Down => GpioInitFlag::InPD as u32,
+            Pull::None => GpioInitParam::InFloating.param(),
+            Pull::Up => GpioInitParam::InPU.param(),
+            Pull::Down => GpioInitParam::InPD.param(),
         }
     }
 }
@@ -394,21 +394,19 @@ impl<'d> OutputOpenDrain<'d> {
 }
 
 pub enum AltMode {
-    AF(u8),
+    AFIN,
     AFOD,
     AFPP,
+    AF(u8),
 }
 
 impl AltMode {
     fn to_flag(&self) -> u32 {
         match self {
-            AltMode::AF(idx) => {
-                use GpioInitFlag::*;
-                const AF_FLAGS: [GpioInitFlag; 8] = [AF0, AF1, AF2, AF3, AF4, AF5, AF6, AF7];
-                AF_FLAGS.get(*idx as usize).copied().unwrap_or(AF0) as u32
-            }
-            AltMode::AFOD => GpioInitFlag::AFOD as u32,
-            AltMode::AFPP => GpioInitFlag::AFPP as u32,
+            AltMode::AFIN => GpioInitParam::AFIN.param(),
+            AltMode::AFOD => GpioInitParam::AFOD.param(),
+            AltMode::AFPP => GpioInitParam::AFPP.param(),
+            AltMode::AF(idx) => GpioInitParam::AF(*idx).param(),
         }
     }
 }
@@ -536,6 +534,9 @@ impl SealedPin for AnyPin {
 
 crate::foreach_pin!(
     ($pin_name:ident, $port_num:expr, $pin_num:expr) => {
+        impl Pin for $crate::peripherals::$pin_name {
+        }
+
         impl SealedPin for $crate::peripherals::$pin_name {
             #[inline]
             fn pin_port(&self) -> u8 {

@@ -46,6 +46,7 @@ async fn main(spawner: Spawner) -> ! {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct Test {
     item1: u32,

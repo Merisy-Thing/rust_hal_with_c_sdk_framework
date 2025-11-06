@@ -1,4 +1,4 @@
-use crate::ll_api::{ll_cmd::*, GpioInitFlag, PortNum};
+use crate::ll_api::{ll_cmd::*, GpioInitParam, PortNum};
 use core::marker::PhantomData;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -11,9 +11,9 @@ pub enum PortModeInput {
 impl PortModeInput {
     fn to_flag(&self) -> u32 {
         match self {
-            PortModeInput::InFloating => GpioInitFlag::InFloating as u32,
-            PortModeInput::InPullUp => GpioInitFlag::InPU as u32,
-            PortModeInput::InPullDown => GpioInitFlag::InPD as u32,
+            PortModeInput::InFloating => GpioInitParam::InFloating.param(),
+            PortModeInput::InPullUp => GpioInitParam::InPU.param(),
+            PortModeInput::InPullDown => GpioInitParam::InPD.param(),
         }
     }
 }
@@ -26,8 +26,8 @@ pub enum PortModeOutput {
 impl PortModeOutput {
     fn to_flag(&self) -> u32 {
         match self {
-            PortModeOutput::OutOD => GpioInitFlag::OutOD as u32,
-            PortModeOutput::OutPP => GpioInitFlag::OutPP as u32,
+            PortModeOutput::OutOD => GpioInitParam::OutOD.param(),
+            PortModeOutput::OutPP => GpioInitParam::OutPP.param(),
         }
     }
 }

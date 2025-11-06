@@ -1,5 +1,5 @@
-use crate::ll_api::{ll_cmd::*, GpioExtiFlag};
 use crate::gpio::Pin;
+use crate::ll_api::{ll_cmd::*, GpioExtiFlag};
 
 pub enum ExtiMode {
     Rising,
@@ -52,12 +52,11 @@ impl<'d> super::pin::Input<'d> {
 
 #[allow(non_snake_case)]
 #[no_mangle]
-#[inline]
 /// An unsafe C-compatible external function for hook EXTI IRQs.
 /// # Arguments
 /// * `_line` - The EXTI line number that triggered the interrupt. This corresponds to the pin number.
 unsafe extern "C" fn EXTI_IRQ_hook_rs(_line: u8) {
-    #[cfg(feature = "embassy")]
+    #[cfg(all(feature = "embassy", feature = "exti-async"))]
     // If the 'embassy' feature is enabled, update the status of the EXTI event in the embassy framework's future system.
     exti_future::exti_set_status(_line);
 
@@ -72,13 +71,13 @@ unsafe extern "C" fn EXTI_IRQ_hook_rs(_line: u8) {
     }
 }
 
-#[cfg(feature = "embassy")]
+#[cfg(all(feature = "embassy", feature = "exti-async"))]
 pub mod exti_future {
+    use crate::gpio::Pin;
     use core::future::Future;
     use core::task::{Context, Poll};
     use embassy_sync::waitqueue::AtomicWaker;
     use portable_atomic::{AtomicU16, Ordering};
-    use crate::gpio::Pin;
 
     const EXTI_COUNT: usize = 16;
     const NEW_AW: AtomicWaker = AtomicWaker::new();
@@ -95,8 +94,8 @@ pub mod exti_future {
 
     impl<'d> super::super::pin::Input<'d> {
         pub async fn wait_for_high(&mut self) {
-        let port = self.pin.pin.port();
-        let pin = self.pin.pin.pin();
+            let port = self.pin.pin.port();
+            let pin = self.pin.pin.pin();
             let fut = ExtiInputFuture::new(port, pin, super::ExtiMode::Rising);
             if Self::is_high(self) {
                 return;
@@ -105,8 +104,8 @@ pub mod exti_future {
         }
 
         pub async fn wait_for_low(&mut self) {
-        let port = self.pin.pin.port();
-        let pin = self.pin.pin.pin();
+            let port = self.pin.pin.port();
+            let pin = self.pin.pin.pin();
             let fut = ExtiInputFuture::new(port, pin, super::ExtiMode::Falling);
             if !Self::is_high(self) {
                 return;
@@ -121,8 +120,8 @@ pub mod exti_future {
         }
 
         pub async fn wait_for_falling_edge(&mut self) {
-        let port = self.pin.pin.port();
-        let pin = self.pin.pin.pin();
+            let port = self.pin.pin.port();
+            let pin = self.pin.pin.pin();
             ExtiInputFuture::new(port, pin, super::ExtiMode::Falling).await
         }
 

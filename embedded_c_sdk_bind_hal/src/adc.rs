@@ -175,7 +175,6 @@ macro_rules! impl_adc_ch_data {
         paste! {
             #[allow(non_snake_case)]
             #[no_mangle]
-            #[inline]
             unsafe extern "C" fn [<ADC_CH $adc_ch _EOC_hook_rs>] (val: AdcDataType) {//fn: ADC_CH{ch}_EOC_hook_rs(val)
                 paste! {
                     let ch_data = &[<ADC_CH $adc_ch _DATA>].0;

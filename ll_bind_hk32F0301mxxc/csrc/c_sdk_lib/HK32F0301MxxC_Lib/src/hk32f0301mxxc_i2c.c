@@ -267,6 +267,7 @@ void I2C_SoftwareResetCmd(I2C_TypeDef* I2Cx)
   */
 void I2C_SwapCmd(I2C_TypeDef* I2Cx, FunctionalState NewState)
 {
+  (void)I2Cx;
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
