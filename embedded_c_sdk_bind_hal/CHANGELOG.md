@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.1 - 2025-11-6
+
+ - rework gpio init param
+ - add every() fn for 
+ - bump dep
+ 
 ## 0.11.0 - 2025-9-8
 
  - bump dep
